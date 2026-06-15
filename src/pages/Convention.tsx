@@ -20,6 +20,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const PRICES = { student: 10000, graduate: 20000, chapter: 50000 } as const;
 const LABELS = { student: "Student", graduate: "Graduate / Others", chapter: "Chapter" } as const;
 
+const BREAKOUT_SESSIONS = [
+  "Investment Banking & Capital Markets",
+  "Taxation & Revenue Administration",
+  "Audit, Risk & Fiscal Governance",
+  "Consulting & Business Advisory",
+  "Data Analytics, Technology & Digital Finance",
+] as const;
+
+// Student discount window
+const STUDENT_DISCOUNT_RATE = 0.15;
+const DISCOUNT_START = new Date("2026-07-15T00:00:00Z");
+const DISCOUNT_END = new Date("2026-07-22T23:59:59Z");
+
+function getCountdown(target: Date, now: Date) {
+  const diff = Math.max(0, target.getTime() - now.getTime());
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+  return { days, hours, minutes, seconds, done: diff === 0 };
+}
+
 declare global { interface Window { FlutterwaveCheckout?: any } }
 
 const loadFlutterwave = () =>
