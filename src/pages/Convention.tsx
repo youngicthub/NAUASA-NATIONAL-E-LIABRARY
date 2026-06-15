@@ -150,6 +150,7 @@ const Convention = () => {
         accommodation_request: accommodation || null,
         emergency_contact_name: emergencyName || null,
         emergency_contact_phone: emergencyPhone || null,
+        breakout_session: type === "student" ? breakoutSession : null,
       });
       if (insErr) throw insErr;
 
