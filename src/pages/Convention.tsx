@@ -114,7 +114,7 @@ const Convention = () => {
 
   const discountActive = type === "student" && now >= DISCOUNT_START && now <= DISCOUNT_END;
   const basePrice = PRICES[type];
-  const amount = discountActive ? Math.round(basePrice * (1 - STUDENT_DISCOUNT_RATE)) : basePrice;
+  const amount = discountActive ? STUDENT_DISCOUNT_PRICE : basePrice;
   const discountUpcoming = type === "student" && now < DISCOUNT_START;
   const countdown = getCountdown(DISCOUNT_START, now);
 
