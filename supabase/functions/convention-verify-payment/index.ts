@@ -28,13 +28,23 @@ Deno.serve(async (req) => {
     if (reg.user_id !== user.id) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     // Server-side authoritative price map (NGN). Never trust client/DB amount.
-    const PRICES: Record<string, number> = {
+    const BASE_PRICES: Record<string, number> = {
       student: 10000,
       graduate: 20000,
       delegate: 15000, // legacy
       chapter: 50000,
     };
-    const expectedAmount = PRICES[reg.registration_type as string];
+    const STUDENT_DISCOUNT_PRICE = 8500;
+    const DISCOUNT_START = new Date("2026-07-15T00:00:00Z").getTime();
+    const DISCOUNT_END = new Date("2026-07-22T23:59:59Z").getTime();
+
+    let expectedAmount = BASE_PRICES[reg.registration_type as string] || 0;
+    if (reg.registration_type === "student" && reg.created_at) {
+      const createdAt = new Date(reg.created_at).getTime();
+      if (createdAt >= DISCOUNT_START && createdAt <= DISCOUNT_END) {
+        expectedAmount = STUDENT_DISCOUNT_PRICE;
+      }
+    }
     if (!expectedAmount) {
       return new Response(JSON.stringify({ error: "Invalid registration type" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }

@@ -29,7 +29,7 @@ const BREAKOUT_SESSIONS = [
 ] as const;
 
 // Student discount window
-const STUDENT_DISCOUNT_RATE = 0.15;
+const STUDENT_DISCOUNT_PRICE = 8500;
 const DISCOUNT_START = new Date("2026-07-15T00:00:00Z");
 const DISCOUNT_END = new Date("2026-07-22T23:59:59Z");
 
@@ -114,7 +114,7 @@ const Convention = () => {
 
   const discountActive = type === "student" && now >= DISCOUNT_START && now <= DISCOUNT_END;
   const basePrice = PRICES[type];
-  const amount = discountActive ? Math.round(basePrice * (1 - STUDENT_DISCOUNT_RATE)) : basePrice;
+  const amount = discountActive ? STUDENT_DISCOUNT_PRICE : basePrice;
   const discountUpcoming = type === "student" && now < DISCOUNT_START;
   const countdown = getCountdown(DISCOUNT_START, now);
 
@@ -393,10 +393,10 @@ const Convention = () => {
                   {discountActive ? (
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div>
-                        <div className="font-semibold text-accent">Student Discount Active — 15% OFF</div>
+                        <div className="font-semibold text-accent">Student Discount Active — ₦8,500</div>
                         <div className="text-xs text-muted-foreground">Ends {DISCOUNT_END.toUTCString()}</div>
                       </div>
-                      <Badge className="bg-accent text-accent-foreground">SAVE 15%</Badge>
+                      <Badge className="bg-accent text-accent-foreground">SAVE ₦1,500</Badge>
                     </div>
                   ) : discountUpcoming ? (
                     <div>
@@ -415,7 +415,7 @@ const Convention = () => {
                         ))}
                       </div>
                       <div className="text-xs text-muted-foreground mt-2">
-                        Get 15% off Student registration from 15 July to 22 July 2026.
+                        Student registration at ₦8,500 from 15 July to 22 July 2026.
                       </div>
                     </div>
                   ) : (
@@ -503,7 +503,7 @@ const Convention = () => {
               <div className="flex items-center justify-between bg-muted rounded-lg p-4">
                 <div className="text-sm text-muted-foreground">
                   Total payable
-                  {discountActive && <div className="text-xs text-accent">15% student discount applied</div>}
+                  {discountActive && <div className="text-xs text-accent">Student discount applied — ₦8,500</div>}
                 </div>
                 <div className="text-right">
                   {discountActive && (
