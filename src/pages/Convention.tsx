@@ -76,6 +76,13 @@ const Convention = () => {
   const [emergencyPhone, setEmergencyPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [publicKey, setPublicKey] = useState<string>("");
+  const [breakoutSession, setBreakoutSession] = useState<string>("");
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     if (profile) {
