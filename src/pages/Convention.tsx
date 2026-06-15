@@ -501,8 +501,16 @@ const Convention = () => {
               <div><Label>Notes (optional)</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
 
               <div className="flex items-center justify-between bg-muted rounded-lg p-4">
-                <div className="text-sm text-muted-foreground">Total payable</div>
-                <div className="text-2xl font-bold">₦{amount.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">
+                  Total payable
+                  {discountActive && <div className="text-xs text-accent">15% student discount applied</div>}
+                </div>
+                <div className="text-right">
+                  {discountActive && (
+                    <div className="text-sm text-muted-foreground line-through">₦{basePrice.toLocaleString()}</div>
+                  )}
+                  <div className="text-2xl font-bold">₦{amount.toLocaleString()}</div>
+                </div>
               </div>
 
               <Button type="submit" disabled={submitting} size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
