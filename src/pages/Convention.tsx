@@ -112,13 +112,18 @@ const Convention = () => {
     },
   });
 
-  const amount = PRICES[type];
+  const discountActive = type === "student" && now >= DISCOUNT_START && now <= DISCOUNT_END;
+  const basePrice = PRICES[type];
+  const amount = discountActive ? Math.round(basePrice * (1 - STUDENT_DISCOUNT_RATE)) : basePrice;
+  const discountUpcoming = type === "student" && now < DISCOUNT_START;
+  const countdown = getCountdown(DISCOUNT_START, now);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { navigate("/login"); return; }
     if (!publicKey) { toast.error("Payments not configured. Please contact admin."); return; }
     if (!fullName || !email || !phone) { toast.error("Please fill all required fields"); return; }
+    if (type === "student" && !breakoutSession) { toast.error("Please select a breakout session"); return; }
 
     setSubmitting(true);
     try {
