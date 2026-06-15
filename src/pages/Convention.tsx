@@ -388,6 +388,65 @@ const Convention = () => {
                 </RadioGroup>
               </div>
 
+              {type === "student" && (
+                <div className="rounded-xl border border-accent/40 bg-accent/5 p-4">
+                  {discountActive ? (
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div>
+                        <div className="font-semibold text-accent">Student Discount Active — 15% OFF</div>
+                        <div className="text-xs text-muted-foreground">Ends {DISCOUNT_END.toUTCString()}</div>
+                      </div>
+                      <Badge className="bg-accent text-accent-foreground">SAVE 15%</Badge>
+                    </div>
+                  ) : discountUpcoming ? (
+                    <div>
+                      <div className="font-semibold mb-2">Student Discount starts in</div>
+                      <div className="grid grid-cols-4 gap-2 text-center">
+                        {[
+                          { label: "Days", value: countdown.days },
+                          { label: "Hours", value: countdown.hours },
+                          { label: "Min", value: countdown.minutes },
+                          { label: "Sec", value: countdown.seconds },
+                        ].map((b) => (
+                          <div key={b.label} className="bg-background rounded-lg py-2 border">
+                            <div className="text-2xl font-bold tabular-nums">{String(b.value).padStart(2, "0")}</div>
+                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{b.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-2">
+                        Get 15% off Student registration from 15 July to 22 July 2026.
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">Student discount has ended. Standard pricing applies.</div>
+                  )}
+                </div>
+              )}
+
+              {type === "student" && (
+                <div>
+                  <Label className="mb-2 block">Breakout Session *</Label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Please select ONE breakout session you would like to attend. Session allocation will be based on capacity and availability.
+                  </p>
+                  <RadioGroup value={breakoutSession} onValueChange={setBreakoutSession} className="grid gap-2">
+                    {BREAKOUT_SESSIONS.map((s) => (
+                      <label
+                        key={s}
+                        htmlFor={`bs-${s}`}
+                        className={`flex items-center gap-3 border rounded-lg p-3 cursor-pointer transition-colors ${
+                          breakoutSession === s ? "border-accent bg-accent/5" : "border-border hover:border-accent/50"
+                        }`}
+                      >
+                        <RadioGroupItem id={`bs-${s}`} value={s} />
+                        <span className="text-sm">{s}</span>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                </div>
+              )}
+
               <div className="grid sm:grid-cols-2 gap-4">
                 <div><Label>Full Name *</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} required /></div>
                 <div><Label>Email *</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
