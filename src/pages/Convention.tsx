@@ -29,7 +29,7 @@ const BREAKOUT_SESSIONS = [
 ] as const;
 
 // Student discount window
-const STUDENT_DISCOUNT_RATE = 0.15;
+const STUDENT_DISCOUNT_PRICE = 8500;
 const DISCOUNT_START = new Date("2026-07-15T00:00:00Z");
 const DISCOUNT_END = new Date("2026-07-22T23:59:59Z");
 
