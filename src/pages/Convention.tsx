@@ -28,9 +28,9 @@ const BREAKOUT_SESSIONS = [
   "Data Analytics, Technology & Digital Finance",
 ] as const;
 
-// Student discount window
+// Student discount window — active from now through 22 July 2026
 const STUDENT_DISCOUNT_PRICE = 8500;
-const DISCOUNT_START = new Date("2026-07-15T00:00:00Z");
+const DISCOUNT_START = new Date("2026-06-16T00:00:00Z");
 const DISCOUNT_END = new Date("2026-07-22T23:59:59Z");
 
 function getCountdown(target: Date, now: Date) {
