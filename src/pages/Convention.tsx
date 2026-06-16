@@ -490,9 +490,38 @@ const Convention = () => {
               </div>
 
               {type === "chapter" && (
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div><Label>Chapter Name *</Label><Input value={chapterName} onChange={(e) => setChapterName(e.target.value)} required /></div>
-                  <div><Label>Number of Delegates</Label><Input type="number" min={1} value={delegatesCount} onChange={(e) => setDelegatesCount(parseInt(e.target.value) || 1)} /></div>
+                <div className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2"><Label>Chapter Name *</Label><Input value={chapterName} onChange={(e) => setChapterName(e.target.value)} required /></div>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/30 p-4">
+                    <h3 className="font-semibold mb-1">Chapter Delegates</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Each chapter registration covers <strong>two delegates</strong>. Please provide their details below.
+                    </p>
+                    {[
+                      { idx: 1, value: delegate1, setter: setDelegate1 },
+                      { idx: 2, value: delegate2, setter: setDelegate2 },
+                    ].map(({ idx, value, setter }) => (
+                      <div key={idx} className="mb-4 last:mb-0">
+                        <div className="text-sm font-medium mb-2">Delegate {idx}</div>
+                        <div className="grid sm:grid-cols-3 gap-3">
+                          <div>
+                            <Label className="text-xs">Full Name *</Label>
+                            <Input value={value.name} onChange={(e) => setter({ ...value, name: e.target.value })} required />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Phone *</Label>
+                            <Input value={value.phone} onChange={(e) => setter({ ...value, phone: e.target.value })} required />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Email *</Label>
+                            <Input type="email" value={value.email} onChange={(e) => setter({ ...value, email: e.target.value })} required />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
