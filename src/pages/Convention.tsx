@@ -142,7 +142,7 @@ const Convention = () => {
       const tx_ref = `NUASA-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const reference_code = `NUASA-${type.toUpperCase().slice(0, 3)}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
-      const { error: insErr } = await supabase.from("convention_registrations").insert({
+      const insertPayload: any = {
         user_id: user.id,
         registration_type: type,
         full_name: fullName,
@@ -164,7 +164,8 @@ const Convention = () => {
         emergency_contact_name: emergencyName || null,
         emergency_contact_phone: emergencyPhone || null,
         breakout_session: type === "student" ? breakoutSession : null,
-      });
+      };
+      const { error: insErr } = await supabase.from("convention_registrations").insert(insertPayload);
       if (insErr) throw insErr;
 
       await loadFlutterwave();
