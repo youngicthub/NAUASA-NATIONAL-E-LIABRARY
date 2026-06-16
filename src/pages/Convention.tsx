@@ -65,7 +65,9 @@ const Convention = () => {
   const [phone, setPhone] = useState("");
   const [institution, setInstitution] = useState("");
   const [chapterName, setChapterName] = useState("");
-  const [delegatesCount, setDelegatesCount] = useState(1);
+  const [delegatesCount, setDelegatesCount] = useState(2);
+  const [delegate1, setDelegate1] = useState({ name: "", phone: "", email: "" });
+  const [delegate2, setDelegate2] = useState({ name: "", phone: "", email: "" });
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState("");
   const [department, setDepartment] = useState("");
@@ -124,6 +126,16 @@ const Convention = () => {
     if (!publicKey) { toast.error("Payments not configured. Please contact admin."); return; }
     if (!fullName || !email || !phone) { toast.error("Please fill all required fields"); return; }
     if (type === "student" && !breakoutSession) { toast.error("Please select a breakout session"); return; }
+    if (type === "chapter") {
+      if (!chapterName) { toast.error("Please enter the chapter name"); return; }
+      const ds = [delegate1, delegate2];
+      for (const [i, d] of ds.entries()) {
+        if (!d.name || !d.phone || !d.email) {
+          toast.error(`Please fill all fields for Delegate ${i + 1}`);
+          return;
+        }
+      }
+    }
 
     setSubmitting(true);
     try {
@@ -138,7 +150,8 @@ const Convention = () => {
         phone,
         institution: institution || null,
         chapter_name: type === "chapter" ? chapterName : null,
-        delegates_count: type === "chapter" ? delegatesCount : 1,
+        delegates_count: type === "chapter" ? 2 : 1,
+        delegates: type === "chapter" ? [delegate1, delegate2] : null,
         amount,
         tx_ref,
         reference_code,
