@@ -31,6 +31,8 @@ import AdminUsers from "./pages/AdminUsers";
 import Convention from "./pages/Convention";
 import AdminConvention from "./pages/AdminConvention";
 import AdminTransactions from "./pages/AdminTransactions";
+import Executives from "./pages/Executives";
+import AdminExecutives from "./pages/AdminExecutives";
 import { useVisitTracker } from "./hooks/useVisitTracker";
 
 const queryClient = new QueryClient();
@@ -57,6 +59,7 @@ const App = () => (
             <Route path="/chapters" element={<Chapters />} />
             <Route path="/events" element={<Events />} />
             <Route path="/convention" element={<Convention />} />
+            <Route path="/executives" element={<Executives />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -164,6 +167,11 @@ const App = () => (
             <Route path="/admin/transactions" element={
               <ProtectedRoute requireAdmin>
                 <AdminTransactions />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/executives" element={
+              <ProtectedRoute requireAdmin>
+                <AdminExecutives />
               </ProtectedRoute>
             } />
 

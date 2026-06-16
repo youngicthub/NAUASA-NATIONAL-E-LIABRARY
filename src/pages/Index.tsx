@@ -2,6 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/home/Hero";
 import { ConventionBanner } from "@/components/home/ConventionBanner";
+import { PresidentSection } from "@/components/home/PresidentSection";
 import { ProfessionalExams } from "@/components/home/ProfessionalExams";
 import { FeaturedResources } from "@/components/home/FeaturedResources";
 import { LatestPosts } from "@/components/home/LatestPosts";
@@ -17,6 +18,7 @@ const Index = () => {
       />
       <Hero />
       <ConventionBanner />
+      <PresidentSection />
       <ProfessionalExams />
       <FeaturedResources />
       <LatestPosts />
@@ -26,3 +28,4 @@ const Index = () => {
 };
 
 export default Index;
+

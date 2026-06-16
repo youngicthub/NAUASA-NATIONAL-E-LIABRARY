@@ -16,6 +16,7 @@ const navLinks = [
   { name: "E-Library", path: "/library" },
   { name: "Blog", path: "/blog" },
   { name: "Chapters", path: "/chapters" },
+  { name: "Executives", path: "/executives" },
   { name: "Events", path: "/events" },
 ];
 

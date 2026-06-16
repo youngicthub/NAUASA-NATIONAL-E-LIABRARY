@@ -28,9 +28,9 @@ const BREAKOUT_SESSIONS = [
   "Data Analytics, Technology & Digital Finance",
 ] as const;
 
-// Student discount window
+// Student discount window — active from now through 22 July 2026
 const STUDENT_DISCOUNT_PRICE = 8500;
-const DISCOUNT_START = new Date("2026-07-15T00:00:00Z");
+const DISCOUNT_START = new Date("2026-06-16T00:00:00Z");
 const DISCOUNT_END = new Date("2026-07-22T23:59:59Z");
 
 function getCountdown(target: Date, now: Date) {
@@ -65,7 +65,9 @@ const Convention = () => {
   const [phone, setPhone] = useState("");
   const [institution, setInstitution] = useState("");
   const [chapterName, setChapterName] = useState("");
-  const [delegatesCount, setDelegatesCount] = useState(1);
+  const [delegatesCount, setDelegatesCount] = useState(2);
+  const [delegate1, setDelegate1] = useState({ name: "", phone: "", email: "" });
+  const [delegate2, setDelegate2] = useState({ name: "", phone: "", email: "" });
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState("");
   const [department, setDepartment] = useState("");
@@ -124,13 +126,23 @@ const Convention = () => {
     if (!publicKey) { toast.error("Payments not configured. Please contact admin."); return; }
     if (!fullName || !email || !phone) { toast.error("Please fill all required fields"); return; }
     if (type === "student" && !breakoutSession) { toast.error("Please select a breakout session"); return; }
+    if (type === "chapter") {
+      if (!chapterName) { toast.error("Please enter the chapter name"); return; }
+      const ds = [delegate1, delegate2];
+      for (const [i, d] of ds.entries()) {
+        if (!d.name || !d.phone || !d.email) {
+          toast.error(`Please fill all fields for Delegate ${i + 1}`);
+          return;
+        }
+      }
+    }
 
     setSubmitting(true);
     try {
       const tx_ref = `NUASA-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const reference_code = `NUASA-${type.toUpperCase().slice(0, 3)}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
-      const { error: insErr } = await supabase.from("convention_registrations").insert({
+      const insertPayload: any = {
         user_id: user.id,
         registration_type: type,
         full_name: fullName,
@@ -138,7 +150,8 @@ const Convention = () => {
         phone,
         institution: institution || null,
         chapter_name: type === "chapter" ? chapterName : null,
-        delegates_count: type === "chapter" ? delegatesCount : 1,
+        delegates_count: type === "chapter" ? 2 : 1,
+        delegates: type === "chapter" ? [delegate1, delegate2] : null,
         amount,
         tx_ref,
         reference_code,
@@ -151,7 +164,8 @@ const Convention = () => {
         emergency_contact_name: emergencyName || null,
         emergency_contact_phone: emergencyPhone || null,
         breakout_session: type === "student" ? breakoutSession : null,
-      });
+      };
+      const { error: insErr } = await supabase.from("convention_registrations").insert(insertPayload);
       if (insErr) throw insErr;
 
       await loadFlutterwave();
@@ -476,9 +490,38 @@ const Convention = () => {
               </div>
 
               {type === "chapter" && (
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div><Label>Chapter Name *</Label><Input value={chapterName} onChange={(e) => setChapterName(e.target.value)} required /></div>
-                  <div><Label>Number of Delegates</Label><Input type="number" min={1} value={delegatesCount} onChange={(e) => setDelegatesCount(parseInt(e.target.value) || 1)} /></div>
+                <div className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2"><Label>Chapter Name *</Label><Input value={chapterName} onChange={(e) => setChapterName(e.target.value)} required /></div>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/30 p-4">
+                    <h3 className="font-semibold mb-1">Chapter Delegates</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Each chapter registration covers <strong>two delegates</strong>. Please provide their details below.
+                    </p>
+                    {[
+                      { idx: 1, value: delegate1, setter: setDelegate1 },
+                      { idx: 2, value: delegate2, setter: setDelegate2 },
+                    ].map(({ idx, value, setter }) => (
+                      <div key={idx} className="mb-4 last:mb-0">
+                        <div className="text-sm font-medium mb-2">Delegate {idx}</div>
+                        <div className="grid sm:grid-cols-3 gap-3">
+                          <div>
+                            <Label className="text-xs">Full Name *</Label>
+                            <Input value={value.name} onChange={(e) => setter({ ...value, name: e.target.value })} required />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Phone *</Label>
+                            <Input value={value.phone} onChange={(e) => setter({ ...value, phone: e.target.value })} required />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Email *</Label>
+                            <Input type="email" value={value.email} onChange={(e) => setter({ ...value, email: e.target.value })} required />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

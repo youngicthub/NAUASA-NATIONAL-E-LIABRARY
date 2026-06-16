@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   BarChart3, Globe, Users, BookOpen, FileText, Calendar, Ticket, Receipt,
-  Upload, Settings, LogOut, Shield, ChevronRight,
+  Upload, Settings, LogOut, Shield, ChevronRight, UserCog,
 } from "lucide-react";
 import nuasaLogo from "@/assets/nuasa-logo.jpeg";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +23,7 @@ const groups: Group[] = [
     items: [
       { to: "/admin/users", label: "Users", icon: Users },
       { to: "/admin/chapters", label: "Chapters", icon: Shield },
+      { to: "/admin/executives", label: "Executives", icon: UserCog },
       { to: "/admin/convention", label: "Convention", icon: Ticket },
       { to: "/admin/transactions", label: "Transactions", icon: Receipt },
     ],

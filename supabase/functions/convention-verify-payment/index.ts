@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
       chapter: 50000,
     };
     const STUDENT_DISCOUNT_PRICE = 8500;
-    const DISCOUNT_START = new Date("2026-07-15T00:00:00Z").getTime();
+    const DISCOUNT_START = new Date("2026-06-16T00:00:00Z").getTime();
     const DISCOUNT_END = new Date("2026-07-22T23:59:59Z").getTime();
 
     let expectedAmount = BASE_PRICES[reg.registration_type as string] || 0;
