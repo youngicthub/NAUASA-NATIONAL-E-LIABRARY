@@ -14,18 +14,18 @@ ALTER TABLE public.convention_registrations
   CHECK (
     registration_type <> 'chapter'
     OR (
-      jsonb_typeof(delegates) = 'array'
+      COALESCE(jsonb_typeof(delegates) = 'array', false)
       AND jsonb_array_length(delegates) = 2
-      AND delegates #>> '{0,name}' ~ '^[[:alpha:] .''-]{2,100}$'
-      AND delegates #>> '{1,name}' ~ '^[[:alpha:] .''-]{2,100}$'
-      AND delegates #>> '{0,email}' ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
-      AND delegates #>> '{1,email}' ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
-      AND delegates #>> '{0,phone}' ~ '^\+[1-9][0-9]{7,14}$'
-      AND delegates #>> '{1,phone}' ~ '^\+[1-9][0-9]{7,14}$'
+      AND COALESCE(delegates #>> '{0,name}', '') ~ '^[[:alpha:] .''-]{2,100}$'
+      AND COALESCE(delegates #>> '{1,name}', '') ~ '^[[:alpha:] .''-]{2,100}$'
+      AND COALESCE(delegates #>> '{0,email}', '') ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
+      AND COALESCE(delegates #>> '{1,email}', '') ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
+      AND COALESCE(delegates #>> '{0,phone}', '') ~ '^\+[1-9][0-9]{7,14}$'
+      AND COALESCE(delegates #>> '{1,phone}', '') ~ '^\+[1-9][0-9]{7,14}$'
       AND lower(delegates #>> '{0,email}') <> lower(delegates #>> '{1,email}')
       AND delegates #>> '{0,phone}' <> delegates #>> '{1,phone}'
     )
-  );
+  ) NOT VALID;
 
 -- 2) Executives table (admin-managed)
 CREATE TABLE IF NOT EXISTS public.executives (
