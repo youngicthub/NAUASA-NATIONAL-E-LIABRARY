@@ -16,6 +16,7 @@ import { Loader2, Printer, CheckCircle2, Calendar, MapPin, Users, Download } fro
 import jsPDF from "jspdf";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { z } from "zod";
 
 const PRICES = { student: 10000, graduate: 20000, chapter: 50000 } as const;
 const LABELS = { student: "Student", graduate: "Graduate / Others", chapter: "Chapter" } as const;
@@ -32,6 +33,77 @@ const BREAKOUT_SESSIONS = [
 const STUDENT_DISCOUNT_PRICE = 8500;
 const DISCOUNT_START = new Date("2026-06-16T00:00:00Z");
 const DISCOUNT_END = new Date("2026-07-22T23:59:59Z");
+
+type DelegateDetails = { name: string; phone: string; email: string };
+type DelegateField = keyof DelegateDetails;
+
+const DELEGATE_NAME_REGEX = /^[\p{L}\p{M}.' -]+$/u;
+
+const formatDelegateNameInput = (value: string) =>
+  value
+    .replace(/[^\p{L}\p{M}.' -]/gu, "")
+    .replace(/\s{2,}/g, " ")
+    .trimStart()
+    .slice(0, 100);
+
+const normalizeDelegateName = (value: string) => value.trim().replace(/\s+/g, " ");
+const normalizeDelegateEmail = (value: string) => value.trim().toLowerCase().slice(0, 254);
+
+const normalizePhoneNumber = (value: string) => {
+  const trimmed = value.trim();
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("0")) return `+234${digits.slice(1)}`;
+  if (digits.length === 13 && digits.startsWith("234")) return `+${digits}`;
+  if (trimmed.startsWith("+") && digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  if (digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  return null;
+};
+
+const formatPhoneInput = (value: string) => {
+  const hasPlus = value.trim().startsWith("+");
+  const digits = value.replace(/\D/g, "").slice(0, 15);
+  return `${hasPlus ? "+" : ""}${digits}`;
+};
+
+const formatPhoneForDisplay = (value: string) => {
+  const phone = normalizePhoneNumber(value);
+  if (!phone) return value.trim();
+  const digits = phone.replace(/\D/g, "");
+  if (phone.startsWith("+234") && digits.length === 13) {
+    return `+234 ${digits.slice(3, 6)} ${digits.slice(6, 9)} ${digits.slice(9)}`;
+  }
+  return phone;
+};
+
+const delegateSchema = z.object({
+  name: z
+    .string()
+    .transform(normalizeDelegateName)
+    .refine((value) => value.length >= 2 && value.length <= 100 && DELEGATE_NAME_REGEX.test(value), {
+      message: "Enter a valid full name",
+    }),
+  phone: z.string().transform((value, ctx) => {
+    const phone = normalizePhoneNumber(value);
+    if (!phone) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Enter a valid phone number" });
+      return z.NEVER;
+    }
+    return phone;
+  }),
+  email: z
+    .string()
+    .transform(normalizeDelegateEmail)
+    .pipe(z.string().email("Enter a valid email address").max(254, "Email is too long")),
+});
+
+const delegatesSchema = z.array(delegateSchema).length(2).superRefine((delegates, ctx) => {
+  if (new Set(delegates.map((d) => d.email)).size !== delegates.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: [1, "email"], message: "Delegate emails must be different" });
+  }
+  if (new Set(delegates.map((d) => d.phone)).size !== delegates.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: [1, "phone"], message: "Delegate phone numbers must be different" });
+  }
+});
 
 function getCountdown(target: Date, now: Date) {
   const diff = Math.max(0, target.getTime() - now.getTime());
