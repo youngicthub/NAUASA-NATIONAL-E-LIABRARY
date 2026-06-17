@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, Plus, Pencil, Trash2, User } from "lucide-react";
+import { z } from "zod";
 
 type Executive = {
   id: string;
@@ -33,6 +34,47 @@ const blank: Omit<Executive, "id"> = {
   phone: "",
   sort_order: 0,
   is_active: true,
+};
+
+const normalizeOptionalText = (value: string | null) => {
+  const trimmed = (value || "").trim();
+  return trimmed || null;
+};
+
+const normalizeExecutivePhone = (value: string | null) => {
+  const trimmed = (value || "").trim();
+  if (!trimmed) return null;
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("0")) return `+234${digits.slice(1)}`;
+  if (digits.length === 13 && digits.startsWith("234")) return `+${digits}`;
+  if (trimmed.startsWith("+") && digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  if (digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  return trimmed;
+};
+
+const executiveSchema = z.object({
+  full_name: z.string().trim().min(2, "Full name is required").max(120, "Full name is too long"),
+  position: z.string().trim().min(2, "Position / portfolio is required").max(120, "Position is too long"),
+  bio: z.string().trim().max(600, "Bio is too long").transform((value) => value || null),
+  image_url: z.string().trim().url("Image URL is invalid").or(z.literal("")).nullable().transform(normalizeOptionalText),
+  email: z.string().trim().toLowerCase().email("Enter a valid email").or(z.literal("")).nullable().transform(normalizeOptionalText),
+  phone: z.string().nullable().transform(normalizeExecutivePhone),
+  sort_order: z.coerce.number().int().min(0).max(999),
+  is_active: z.boolean(),
+});
+
+const setupMessage = (message: string) => {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("relation \"public.executives\" does not exist") ||
+    lower.includes("could not find the table") ||
+    lower.includes("bucket not found") ||
+    lower.includes("row-level security") ||
+    lower.includes("permission denied")
+  ) {
+    return "Executives setup is not active yet. Run database/2026_06_16_delegates_and_executives.sql in your Supabase SQL Editor, then try again.";
+  }
+  return message;
 };
 
 const AdminExecutives = () => {
