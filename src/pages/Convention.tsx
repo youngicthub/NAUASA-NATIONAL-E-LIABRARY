@@ -16,6 +16,7 @@ import { Loader2, Printer, CheckCircle2, Calendar, MapPin, Users, Download } fro
 import jsPDF from "jspdf";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { z } from "zod";
 
 const PRICES = { student: 10000, graduate: 20000, chapter: 50000 } as const;
 const LABELS = { student: "Student", graduate: "Graduate / Others", chapter: "Chapter" } as const;
@@ -32,6 +33,77 @@ const BREAKOUT_SESSIONS = [
 const STUDENT_DISCOUNT_PRICE = 8500;
 const DISCOUNT_START = new Date("2026-06-16T00:00:00Z");
 const DISCOUNT_END = new Date("2026-07-22T23:59:59Z");
+
+type DelegateDetails = { name: string; phone: string; email: string };
+type DelegateField = keyof DelegateDetails;
+
+const DELEGATE_NAME_REGEX = /^[\p{L}\p{M}.' -]+$/u;
+
+const formatDelegateNameInput = (value: string) =>
+  value
+    .replace(/[^\p{L}\p{M}.' -]/gu, "")
+    .replace(/\s{2,}/g, " ")
+    .trimStart()
+    .slice(0, 100);
+
+const normalizeDelegateName = (value: string) => value.trim().replace(/\s+/g, " ");
+const normalizeDelegateEmail = (value: string) => value.trim().toLowerCase().slice(0, 254);
+
+const normalizePhoneNumber = (value: string) => {
+  const trimmed = value.trim();
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("0")) return `+234${digits.slice(1)}`;
+  if (digits.length === 13 && digits.startsWith("234")) return `+${digits}`;
+  if (trimmed.startsWith("+") && digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  if (digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  return null;
+};
+
+const formatPhoneInput = (value: string) => {
+  const hasPlus = value.trim().startsWith("+");
+  const digits = value.replace(/\D/g, "").slice(0, 15);
+  return `${hasPlus ? "+" : ""}${digits}`;
+};
+
+const formatPhoneForDisplay = (value: string) => {
+  const phone = normalizePhoneNumber(value);
+  if (!phone) return value.trim();
+  const digits = phone.replace(/\D/g, "");
+  if (phone.startsWith("+234") && digits.length === 13) {
+    return `+234 ${digits.slice(3, 6)} ${digits.slice(6, 9)} ${digits.slice(9)}`;
+  }
+  return phone;
+};
+
+const delegateSchema = z.object({
+  name: z
+    .string()
+    .transform(normalizeDelegateName)
+    .refine((value) => value.length >= 2 && value.length <= 100 && DELEGATE_NAME_REGEX.test(value), {
+      message: "Enter a valid full name",
+    }),
+  phone: z.string().transform((value, ctx) => {
+    const phone = normalizePhoneNumber(value);
+    if (!phone) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Enter a valid phone number" });
+      return z.NEVER;
+    }
+    return phone;
+  }),
+  email: z
+    .string()
+    .transform(normalizeDelegateEmail)
+    .pipe(z.string().email("Enter a valid email address").max(254, "Email is too long")),
+});
+
+const delegatesSchema = z.array(delegateSchema).length(2).superRefine((delegates, ctx) => {
+  if (new Set(delegates.map((d) => d.email)).size !== delegates.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: [1, "email"], message: "Delegate emails must be different" });
+  }
+  if (new Set(delegates.map((d) => d.phone)).size !== delegates.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: [1, "phone"], message: "Delegate phone numbers must be different" });
+  }
+});
 
 function getCountdown(target: Date, now: Date) {
   const diff = Math.max(0, target.getTime() - now.getTime());
@@ -68,6 +140,7 @@ const Convention = () => {
   const [delegatesCount, setDelegatesCount] = useState(2);
   const [delegate1, setDelegate1] = useState({ name: "", phone: "", email: "" });
   const [delegate2, setDelegate2] = useState({ name: "", phone: "", email: "" });
+  const [delegateErrors, setDelegateErrors] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState("");
   const [department, setDepartment] = useState("");
@@ -120,21 +193,53 @@ const Convention = () => {
   const discountUpcoming = type === "student" && now < DISCOUNT_START;
   const countdown = getCountdown(DISCOUNT_START, now);
 
+  const updateDelegate = (idx: number, field: DelegateField, value: string) => {
+    const formattedValue =
+      field === "name" ? formatDelegateNameInput(value) :
+      field === "phone" ? formatPhoneInput(value) :
+      normalizeDelegateEmail(value);
+    const setter = idx === 1 ? setDelegate1 : setDelegate2;
+    setter((current) => ({ ...current, [field]: formattedValue }));
+    setDelegateErrors((current) => {
+      const next = { ...current };
+      delete next[`${idx}.${field}`];
+      return next;
+    });
+  };
+
+  const formatDelegateOnBlur = (idx: number, field: DelegateField, value: string) => {
+    const formattedValue =
+      field === "name" ? normalizeDelegateName(value) :
+      field === "phone" ? formatPhoneForDisplay(value) :
+      normalizeDelegateEmail(value);
+    const setter = idx === 1 ? setDelegate1 : setDelegate2;
+    setter((current) => ({ ...current, [field]: formattedValue }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { navigate("/login"); return; }
     if (!publicKey) { toast.error("Payments not configured. Please contact admin."); return; }
     if (!fullName || !email || !phone) { toast.error("Please fill all required fields"); return; }
     if (type === "student" && !breakoutSession) { toast.error("Please select a breakout session"); return; }
+    let chapterDelegates: DelegateDetails[] | null = null;
     if (type === "chapter") {
       if (!chapterName) { toast.error("Please enter the chapter name"); return; }
-      const ds = [delegate1, delegate2];
-      for (const [i, d] of ds.entries()) {
-        if (!d.name || !d.phone || !d.email) {
-          toast.error(`Please fill all fields for Delegate ${i + 1}`);
-          return;
+      const parsedDelegates = delegatesSchema.safeParse([delegate1, delegate2]);
+      if (!parsedDelegates.success) {
+        const errors: Record<string, string> = {};
+        for (const issue of parsedDelegates.error.issues) {
+          const [delegateIndex, field] = issue.path;
+          if (typeof delegateIndex === "number" && typeof field === "string") {
+            errors[`${delegateIndex + 1}.${field}`] = issue.message;
+          }
         }
+        setDelegateErrors(errors);
+        toast.error(parsedDelegates.error.issues[0]?.message || "Please enter valid delegate details");
+        return;
       }
+      setDelegateErrors({});
+      chapterDelegates = parsedDelegates.data as DelegateDetails[];
     }
 
     setSubmitting(true);
@@ -151,7 +256,7 @@ const Convention = () => {
         institution: institution || null,
         chapter_name: type === "chapter" ? chapterName : null,
         delegates_count: type === "chapter" ? 2 : 1,
-        delegates: type === "chapter" ? [delegate1, delegate2] : null,
+        delegates: chapterDelegates,
         amount,
         tx_ref,
         reference_code,
@@ -500,23 +605,53 @@ const Convention = () => {
                       Each chapter registration covers <strong>two delegates</strong>. Please provide their details below.
                     </p>
                     {[
-                      { idx: 1, value: delegate1, setter: setDelegate1 },
-                      { idx: 2, value: delegate2, setter: setDelegate2 },
-                    ].map(({ idx, value, setter }) => (
+                      { idx: 1, value: delegate1 },
+                      { idx: 2, value: delegate2 },
+                    ].map(({ idx, value }) => (
                       <div key={idx} className="mb-4 last:mb-0">
                         <div className="text-sm font-medium mb-2">Delegate {idx}</div>
                         <div className="grid sm:grid-cols-3 gap-3">
                           <div>
                             <Label className="text-xs">Full Name *</Label>
-                            <Input value={value.name} onChange={(e) => setter({ ...value, name: e.target.value })} required />
+                            <Input
+                              value={value.name}
+                              onChange={(e) => updateDelegate(idx, "name", e.target.value)}
+                              onBlur={(e) => formatDelegateOnBlur(idx, "name", e.target.value)}
+                              aria-invalid={!!delegateErrors[`${idx}.name`]}
+                              maxLength={100}
+                              required
+                            />
+                            {delegateErrors[`${idx}.name`] && <p className="mt-1 text-xs text-destructive">{delegateErrors[`${idx}.name`]}</p>}
                           </div>
                           <div>
                             <Label className="text-xs">Phone *</Label>
-                            <Input value={value.phone} onChange={(e) => setter({ ...value, phone: e.target.value })} required />
+                            <Input
+                              type="tel"
+                              inputMode="tel"
+                              value={value.phone}
+                              onChange={(e) => updateDelegate(idx, "phone", e.target.value)}
+                              onBlur={(e) => formatDelegateOnBlur(idx, "phone", e.target.value)}
+                              aria-invalid={!!delegateErrors[`${idx}.phone`]}
+                              placeholder="08012345678"
+                              maxLength={19}
+                              required
+                            />
+                            {delegateErrors[`${idx}.phone`] && <p className="mt-1 text-xs text-destructive">{delegateErrors[`${idx}.phone`]}</p>}
                           </div>
                           <div>
                             <Label className="text-xs">Email *</Label>
-                            <Input type="email" value={value.email} onChange={(e) => setter({ ...value, email: e.target.value })} required />
+                            <Input
+                              type="email"
+                              inputMode="email"
+                              autoCapitalize="none"
+                              value={value.email}
+                              onChange={(e) => updateDelegate(idx, "email", e.target.value)}
+                              onBlur={(e) => formatDelegateOnBlur(idx, "email", e.target.value)}
+                              aria-invalid={!!delegateErrors[`${idx}.email`]}
+                              maxLength={254}
+                              required
+                            />
+                            {delegateErrors[`${idx}.email`] && <p className="mt-1 text-xs text-destructive">{delegateErrors[`${idx}.email`]}</p>}
                           </div>
                         </div>
                       </div>

@@ -6,6 +6,28 @@
 ALTER TABLE public.convention_registrations
   ADD COLUMN IF NOT EXISTS delegates jsonb;
 
+ALTER TABLE public.convention_registrations
+  DROP CONSTRAINT IF EXISTS convention_registrations_delegates_valid;
+
+ALTER TABLE public.convention_registrations
+  ADD CONSTRAINT convention_registrations_delegates_valid
+  CHECK (
+    registration_type <> 'chapter'
+    OR CASE
+      WHEN jsonb_typeof(delegates) = 'array' THEN
+        jsonb_array_length(delegates) = 2
+        AND COALESCE(delegates #>> '{0,name}', '') ~ '^[[:alpha:] .''-]{2,100}$'
+        AND COALESCE(delegates #>> '{1,name}', '') ~ '^[[:alpha:] .''-]{2,100}$'
+        AND COALESCE(delegates #>> '{0,email}', '') ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
+        AND COALESCE(delegates #>> '{1,email}', '') ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
+        AND COALESCE(delegates #>> '{0,phone}', '') ~ '^\+[1-9][0-9]{7,14}$'
+        AND COALESCE(delegates #>> '{1,phone}', '') ~ '^\+[1-9][0-9]{7,14}$'
+        AND lower(delegates #>> '{0,email}') <> lower(delegates #>> '{1,email}')
+        AND delegates #>> '{0,phone}' <> delegates #>> '{1,phone}'
+      ELSE false
+    END
+  ) NOT VALID;
+
 -- 2) Executives table (admin-managed)
 CREATE TABLE IF NOT EXISTS public.executives (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -20,6 +42,23 @@ CREATE TABLE IF NOT EXISTS public.executives (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE public.executives
+  ADD COLUMN IF NOT EXISTS bio text,
+  ADD COLUMN IF NOT EXISTS image_url text,
+  ADD COLUMN IF NOT EXISTS email text,
+  ADD COLUMN IF NOT EXISTS phone text,
+  ADD COLUMN IF NOT EXISTS sort_order int NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+
+ALTER TABLE public.executives
+  DROP CONSTRAINT IF EXISTS executives_email_valid;
+
+ALTER TABLE public.executives
+  ADD CONSTRAINT executives_email_valid
+  CHECK (email IS NULL OR email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$');
 
 GRANT SELECT ON public.executives TO anon, authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.executives TO authenticated;

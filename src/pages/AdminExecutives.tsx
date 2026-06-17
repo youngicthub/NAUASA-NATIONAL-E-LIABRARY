@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, Plus, Pencil, Trash2, User } from "lucide-react";
+import { z } from "zod";
 
 type Executive = {
   id: string;
@@ -33,6 +34,49 @@ const blank: Omit<Executive, "id"> = {
   phone: "",
   sort_order: 0,
   is_active: true,
+};
+
+const normalizeOptionalText = (value: string | null) => {
+  const trimmed = (value || "").trim();
+  return trimmed || null;
+};
+
+const normalizeExecutivePhone = (value: string | null) => {
+  const trimmed = (value || "").trim();
+  if (!trimmed) return null;
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("0")) return `+234${digits.slice(1)}`;
+  if (digits.length === 13 && digits.startsWith("234")) return `+${digits}`;
+  if (trimmed.startsWith("+") && digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  if (digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  return trimmed;
+};
+
+const isValidOptionalPhone = (value: string | null) => !value || /^\+[1-9]\d{7,14}$/.test(value);
+
+const executiveSchema = z.object({
+  full_name: z.string().trim().min(2, "Full name is required").max(120, "Full name is too long"),
+  position: z.string().trim().min(2, "Position / portfolio is required").max(120, "Position is too long"),
+  bio: z.string().trim().max(600, "Bio is too long").transform((value) => value || null),
+  image_url: z.string().trim().url("Image URL is invalid").or(z.literal("")).nullable().transform(normalizeOptionalText),
+  email: z.string().trim().toLowerCase().email("Enter a valid email").or(z.literal("")).nullable().transform(normalizeOptionalText),
+  phone: z.string().nullable().transform(normalizeExecutivePhone).refine(isValidOptionalPhone, "Enter a valid phone number"),
+  sort_order: z.coerce.number().int().min(0).max(999),
+  is_active: z.boolean(),
+});
+
+const setupMessage = (message: string) => {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("relation \"public.executives\" does not exist") ||
+    lower.includes("could not find the table") ||
+    lower.includes("bucket not found") ||
+    lower.includes("row-level security") ||
+    lower.includes("permission denied")
+  ) {
+    return "Executives setup is not active yet. Run database/2026_06_16_delegates_and_executives.sql in your SQL Editor, then try again.";
+  }
+  return message;
 };
 
 const AdminExecutives = () => {
@@ -79,13 +123,14 @@ const AdminExecutives = () => {
   };
 
   const handleSave = async () => {
-    if (!form.full_name || !form.position) {
-      toast.error("Name and position are required");
+    const parsed = executiveSchema.safeParse(form);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Please check the executive details");
       return;
     }
     setSaving(true);
     try {
-      let image_url = form.image_url || null;
+      let image_url = parsed.data.image_url;
       if (file) {
         const ext = file.name.split(".").pop() || "jpg";
         const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -98,7 +143,7 @@ const AdminExecutives = () => {
         image_url = pub.publicUrl;
       }
 
-      const payload = { ...form, image_url, bio: form.bio || null, email: form.email || null, phone: form.phone || null };
+      const payload = { ...parsed.data, image_url, updated_at: new Date().toISOString() };
 
       if (editing) {
         const { error } = await (supabase as any).from("executives").update(payload).eq("id", editing.id);
@@ -114,7 +159,7 @@ const AdminExecutives = () => {
       qc.invalidateQueries({ queryKey: ["public-executives"] });
       setOpen(false);
     } catch (e: any) {
-      toast.error(e.message || "Failed to save");
+      toast.error(setupMessage(e.message || "Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -123,7 +168,7 @@ const AdminExecutives = () => {
   const handleDelete = async (e: Executive) => {
     if (!confirm(`Remove ${e.full_name}?`)) return;
     const { error } = await (supabase as any).from("executives").delete().eq("id", e.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(setupMessage(error.message)); return; }
     toast.success("Removed");
     qc.invalidateQueries({ queryKey: ["admin-executives"] });
     qc.invalidateQueries({ queryKey: ["public-executives"] });
