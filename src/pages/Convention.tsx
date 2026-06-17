@@ -239,7 +239,7 @@ const Convention = () => {
         return;
       }
       setDelegateErrors({});
-      chapterDelegates = parsedDelegates.data;
+      chapterDelegates = parsedDelegates.data as DelegateDetails[];
     }
 
     setSubmitting(true);
