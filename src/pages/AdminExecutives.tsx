@@ -74,7 +74,7 @@ const setupMessage = (message: string) => {
     lower.includes("row-level security") ||
     lower.includes("permission denied")
   ) {
-    return "Executives setup is not active yet. Run database/2026_06_16_delegates_and_executives.sql in your Supabase SQL Editor, then try again.";
+    return "Executives setup is not active yet. Run database/2026_06_16_delegates_and_executives.sql in your SQL Editor, then try again.";
   }
   return message;
 };
