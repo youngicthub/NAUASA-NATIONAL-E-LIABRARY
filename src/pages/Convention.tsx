@@ -613,15 +613,45 @@ const Convention = () => {
                         <div className="grid sm:grid-cols-3 gap-3">
                           <div>
                             <Label className="text-xs">Full Name *</Label>
-                            <Input value={value.name} onChange={(e) => setter({ ...value, name: e.target.value })} required />
+                            <Input
+                              value={value.name}
+                              onChange={(e) => updateDelegate(idx, "name", e.target.value)}
+                              onBlur={(e) => formatDelegateOnBlur(idx, "name", e.target.value)}
+                              aria-invalid={!!delegateErrors[`${idx}.name`]}
+                              maxLength={100}
+                              required
+                            />
+                            {delegateErrors[`${idx}.name`] && <p className="mt-1 text-xs text-destructive">{delegateErrors[`${idx}.name`]}</p>}
                           </div>
                           <div>
                             <Label className="text-xs">Phone *</Label>
-                            <Input value={value.phone} onChange={(e) => setter({ ...value, phone: e.target.value })} required />
+                            <Input
+                              type="tel"
+                              inputMode="tel"
+                              value={value.phone}
+                              onChange={(e) => updateDelegate(idx, "phone", e.target.value)}
+                              onBlur={(e) => formatDelegateOnBlur(idx, "phone", e.target.value)}
+                              aria-invalid={!!delegateErrors[`${idx}.phone`]}
+                              placeholder="08012345678"
+                              maxLength={19}
+                              required
+                            />
+                            {delegateErrors[`${idx}.phone`] && <p className="mt-1 text-xs text-destructive">{delegateErrors[`${idx}.phone`]}</p>}
                           </div>
                           <div>
                             <Label className="text-xs">Email *</Label>
-                            <Input type="email" value={value.email} onChange={(e) => setter({ ...value, email: e.target.value })} required />
+                            <Input
+                              type="email"
+                              inputMode="email"
+                              autoCapitalize="none"
+                              value={value.email}
+                              onChange={(e) => updateDelegate(idx, "email", e.target.value)}
+                              onBlur={(e) => formatDelegateOnBlur(idx, "email", e.target.value)}
+                              aria-invalid={!!delegateErrors[`${idx}.email`]}
+                              maxLength={254}
+                              required
+                            />
+                            {delegateErrors[`${idx}.email`] && <p className="mt-1 text-xs text-destructive">{delegateErrors[`${idx}.email`]}</p>}
                           </div>
                         </div>
                       </div>
