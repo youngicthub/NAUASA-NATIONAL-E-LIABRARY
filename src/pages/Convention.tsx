@@ -605,9 +605,9 @@ const Convention = () => {
                       Each chapter registration covers <strong>two delegates</strong>. Please provide their details below.
                     </p>
                     {[
-                      { idx: 1, value: delegate1, setter: setDelegate1 },
-                      { idx: 2, value: delegate2, setter: setDelegate2 },
-                    ].map(({ idx, value, setter }) => (
+                      { idx: 1, value: delegate1 },
+                      { idx: 2, value: delegate2 },
+                    ].map(({ idx, value }) => (
                       <div key={idx} className="mb-4 last:mb-0">
                         <div className="text-sm font-medium mb-2">Delegate {idx}</div>
                         <div className="grid sm:grid-cols-3 gap-3">
