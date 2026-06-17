@@ -140,6 +140,7 @@ const Convention = () => {
   const [delegatesCount, setDelegatesCount] = useState(2);
   const [delegate1, setDelegate1] = useState({ name: "", phone: "", email: "" });
   const [delegate2, setDelegate2] = useState({ name: "", phone: "", email: "" });
+  const [delegateErrors, setDelegateErrors] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState("");
   const [gender, setGender] = useState("");
   const [department, setDepartment] = useState("");
@@ -192,21 +193,53 @@ const Convention = () => {
   const discountUpcoming = type === "student" && now < DISCOUNT_START;
   const countdown = getCountdown(DISCOUNT_START, now);
 
+  const updateDelegate = (idx: number, field: DelegateField, value: string) => {
+    const formattedValue =
+      field === "name" ? formatDelegateNameInput(value) :
+      field === "phone" ? formatPhoneInput(value) :
+      normalizeDelegateEmail(value);
+    const setter = idx === 1 ? setDelegate1 : setDelegate2;
+    setter((current) => ({ ...current, [field]: formattedValue }));
+    setDelegateErrors((current) => {
+      const next = { ...current };
+      delete next[`${idx}.${field}`];
+      return next;
+    });
+  };
+
+  const formatDelegateOnBlur = (idx: number, field: DelegateField, value: string) => {
+    const formattedValue =
+      field === "name" ? normalizeDelegateName(value) :
+      field === "phone" ? formatPhoneForDisplay(value) :
+      normalizeDelegateEmail(value);
+    const setter = idx === 1 ? setDelegate1 : setDelegate2;
+    setter((current) => ({ ...current, [field]: formattedValue }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { navigate("/login"); return; }
     if (!publicKey) { toast.error("Payments not configured. Please contact admin."); return; }
     if (!fullName || !email || !phone) { toast.error("Please fill all required fields"); return; }
     if (type === "student" && !breakoutSession) { toast.error("Please select a breakout session"); return; }
+    let chapterDelegates: DelegateDetails[] | null = null;
     if (type === "chapter") {
       if (!chapterName) { toast.error("Please enter the chapter name"); return; }
-      const ds = [delegate1, delegate2];
-      for (const [i, d] of ds.entries()) {
-        if (!d.name || !d.phone || !d.email) {
-          toast.error(`Please fill all fields for Delegate ${i + 1}`);
-          return;
+      const parsedDelegates = delegatesSchema.safeParse([delegate1, delegate2]);
+      if (!parsedDelegates.success) {
+        const errors: Record<string, string> = {};
+        for (const issue of parsedDelegates.error.issues) {
+          const [delegateIndex, field] = issue.path;
+          if (typeof delegateIndex === "number" && typeof field === "string") {
+            errors[`${delegateIndex + 1}.${field}`] = issue.message;
+          }
         }
+        setDelegateErrors(errors);
+        toast.error(parsedDelegates.error.issues[0]?.message || "Please enter valid delegate details");
+        return;
       }
+      setDelegateErrors({});
+      chapterDelegates = parsedDelegates.data;
     }
 
     setSubmitting(true);
@@ -223,7 +256,7 @@ const Convention = () => {
         institution: institution || null,
         chapter_name: type === "chapter" ? chapterName : null,
         delegates_count: type === "chapter" ? 2 : 1,
-        delegates: type === "chapter" ? [delegate1, delegate2] : null,
+        delegates: chapterDelegates,
         amount,
         tx_ref,
         reference_code,
