@@ -121,13 +121,14 @@ const AdminExecutives = () => {
   };
 
   const handleSave = async () => {
-    if (!form.full_name || !form.position) {
-      toast.error("Name and position are required");
+    const parsed = executiveSchema.safeParse(form);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Please check the executive details");
       return;
     }
     setSaving(true);
     try {
-      let image_url = form.image_url || null;
+      let image_url = parsed.data.image_url;
       if (file) {
         const ext = file.name.split(".").pop() || "jpg";
         const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -140,7 +141,7 @@ const AdminExecutives = () => {
         image_url = pub.publicUrl;
       }
 
-      const payload = { ...form, image_url, bio: form.bio || null, email: form.email || null, phone: form.phone || null };
+      const payload = { ...parsed.data, image_url, updated_at: new Date().toISOString() };
 
       if (editing) {
         const { error } = await (supabase as any).from("executives").update(payload).eq("id", editing.id);
@@ -156,7 +157,7 @@ const AdminExecutives = () => {
       qc.invalidateQueries({ queryKey: ["public-executives"] });
       setOpen(false);
     } catch (e: any) {
-      toast.error(e.message || "Failed to save");
+      toast.error(setupMessage(e.message || "Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -165,7 +166,7 @@ const AdminExecutives = () => {
   const handleDelete = async (e: Executive) => {
     if (!confirm(`Remove ${e.full_name}?`)) return;
     const { error } = await (supabase as any).from("executives").delete().eq("id", e.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(setupMessage(error.message)); return; }
     toast.success("Removed");
     qc.invalidateQueries({ queryKey: ["admin-executives"] });
     qc.invalidateQueries({ queryKey: ["public-executives"] });
