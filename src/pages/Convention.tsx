@@ -534,7 +534,7 @@ const Convention = () => {
                         ))}
                       </div>
                       <div className="text-xs text-muted-foreground mt-2">
-                        Student registration at ₦8,500 from 15 July to 22 July 2026.
+                        Student registration at ₦15,000 (was ₦20,000) until 31 July 2026.
                       </div>
                     </div>
                   ) : (
