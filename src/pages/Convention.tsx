@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { z } from "zod";
 
 const PRICES = { student: 20000, graduate: 30000, chapter: 50000 } as const;
-const LABELS = { student: "Student", graduate: "Graduate / Others", chapter: "Chapter" } as const;
+const LABELS = { student: "Student", graduate: "Graduates", chapter: "Chapter" } as const;
 
 const BREAKOUT_SESSIONS = [
   "Investment Banking & Capital Markets",
