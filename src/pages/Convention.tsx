@@ -18,7 +18,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { z } from "zod";
 
-const PRICES = { student: 10000, graduate: 20000, chapter: 50000 } as const;
+const PRICES = { student: 20000, graduate: 30000, chapter: 50000 } as const;
 const LABELS = { student: "Student", graduate: "Graduate / Others", chapter: "Chapter" } as const;
 
 const BREAKOUT_SESSIONS = [
