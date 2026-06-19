@@ -15,7 +15,7 @@ import { SEO } from "@/components/SEO";
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, user, isAdmin, isLoading: authLoading } = useAuth();
+  const { signIn, user, isAdmin, isLoading: authLoading, refreshProfile } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -23,14 +23,13 @@ const Login = () => {
 
   const from = location.state?.from?.pathname || "/dashboard";
 
-  // Redirect if already logged in
+  // Redirect if already logged in (only once auth context is settled)
   useEffect(() => {
-    if (!authLoading && user) {
-      if (isAdmin) {
-        navigate("/admin/dashboard", { replace: true });
-      } else {
-        navigate(from, { replace: true });
-      }
+    if (authLoading || !user) return;
+    if (isAdmin) {
+      navigate("/admin/dashboard", { replace: true });
+    } else {
+      navigate(from, { replace: true });
     }
   }, [user, isAdmin, authLoading, navigate, from]);
 
@@ -63,7 +62,9 @@ const Login = () => {
       }
     }
 
+    await refreshProfile();
     toast.success("Welcome back!");
+    setIsLoading(false);
   };
 
   return (
