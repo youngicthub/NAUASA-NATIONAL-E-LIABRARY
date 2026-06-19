@@ -681,7 +681,7 @@ const Convention = () => {
               <div className="flex items-center justify-between bg-muted rounded-lg p-4">
                 <div className="text-sm text-muted-foreground">
                   Total payable
-                  {discountActive && <div className="text-xs text-accent">Student discount applied — ₦8,500</div>}
+                  {discountActive && <div className="text-xs text-accent">Student discount applied — ₦15,000</div>}
                 </div>
                 <div className="text-right">
                   {discountActive && (
