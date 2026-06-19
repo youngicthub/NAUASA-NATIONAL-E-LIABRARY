@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const { signIn, user, isAdmin, isLoading: authLoading } = useAuth();
+  const { signIn, user, isAdmin, isLoading: authLoading, refreshProfile, signOut } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -21,15 +21,11 @@ const AdminLogin = () => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
 
-  // Redirect if already logged in
+  // Redirect once auth context confirms admin role — avoids flicker/redirect loops
   useEffect(() => {
-    if (!authLoading && user) {
-      if (isAdmin) {
-        navigate("/admin/dashboard", { replace: true });
-      } else {
-        // Not an admin, send to user dashboard
-        navigate("/dashboard", { replace: true });
-      }
+    if (authLoading || !user) return;
+    if (isAdmin) {
+      navigate("/admin/dashboard", { replace: true });
     }
   }, [user, isAdmin, authLoading, navigate]);
 
@@ -45,7 +41,7 @@ const AdminLogin = () => {
       return;
     }
 
-    // After sign in, check if user has admin role
+    // Verify admin role server-side before redirecting
     const { data: { user: signedInUser } } = await supabase.auth.getUser();
     if (signedInUser) {
       const { data: roleData } = await supabase
@@ -56,12 +52,11 @@ const AdminLogin = () => {
 
       if (roleData?.role !== "admin") {
         toast.error("You do not have admin privileges. Use the regular login instead.");
-        await supabase.auth.signOut();
+        await signOut();
         setIsLoading(false);
         return;
       }
 
-      // Log admin login activity (best-effort; non-blocking)
       try {
         await supabase.from("admin_login_log").insert({
           user_id: signedInUser.id,
@@ -71,8 +66,11 @@ const AdminLogin = () => {
       } catch { /* ignore */ }
     }
 
+    // Refresh auth context so isAdmin is true before navigating — prevents ProtectedRoute bounce
+    await refreshProfile();
     toast.success("Welcome back, Admin!");
-    navigate("/admin/dashboard");
+    setIsLoading(false);
+    navigate("/admin/dashboard", { replace: true });
   };
 
   const handleForgot = async () => {
