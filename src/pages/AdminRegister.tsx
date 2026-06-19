@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, ADMIN_REGISTRATION_TOKEN } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const AdminRegister = () => {
@@ -19,10 +19,16 @@ const AdminRegister = () => {
     email: "",
     password: "",
     reason: "",
+    accessToken: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.accessToken.trim() !== ADMIN_REGISTRATION_TOKEN) {
+      toast.error("Invalid admin access token");
+      return;
+    }
 
     if (formData.password.length < 8) {
       toast.error("Password must be at least 8 characters");
