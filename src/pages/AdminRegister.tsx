@@ -156,6 +156,26 @@ const AdminRegister = () => {
               </p>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="accessToken">Admin Access Token</Label>
+              <div className="relative">
+                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="accessToken"
+                  type="password"
+                  placeholder="Enter NUASA admin access token"
+                  value={formData.accessToken}
+                  onChange={(e) => setFormData({ ...formData, accessToken: e.target.value })}
+                  className="pl-10"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Required token provided by NUASA leadership.
+              </p>
+            </div>
+
             <Button 
               type="submit" 
               className="w-full gap-2"
