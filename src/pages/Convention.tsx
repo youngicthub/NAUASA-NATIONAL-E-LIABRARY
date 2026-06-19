@@ -512,10 +512,10 @@ const Convention = () => {
                   {discountActive ? (
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div>
-                        <div className="font-semibold text-accent">Student Discount Active — ₦8,500</div>
+                        <div className="font-semibold text-accent">Student Discount Active — ₦15,000</div>
                         <div className="text-xs text-muted-foreground">Ends {DISCOUNT_END.toUTCString()}</div>
                       </div>
-                      <Badge className="bg-accent text-accent-foreground">SAVE ₦1,500</Badge>
+                      <Badge className="bg-accent text-accent-foreground">SAVE ₦5,000</Badge>
                     </div>
                   ) : discountUpcoming ? (
                     <div>
