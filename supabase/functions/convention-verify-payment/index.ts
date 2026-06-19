@@ -29,14 +29,14 @@ Deno.serve(async (req) => {
 
     // Server-side authoritative price map (NGN). Never trust client/DB amount.
     const BASE_PRICES: Record<string, number> = {
-      student: 10000,
-      graduate: 20000,
+      student: 20000,
+      graduate: 30000,
       delegate: 15000, // legacy
       chapter: 50000,
     };
-    const STUDENT_DISCOUNT_PRICE = 8500;
+    const STUDENT_DISCOUNT_PRICE = 15000;
     const DISCOUNT_START = new Date("2026-06-16T00:00:00Z").getTime();
-    const DISCOUNT_END = new Date("2026-07-22T23:59:59Z").getTime();
+    const DISCOUNT_END = new Date("2026-07-31T23:59:59Z").getTime();
 
     let expectedAmount = BASE_PRICES[reg.registration_type as string] || 0;
     if (reg.registration_type === "student" && reg.created_at) {
