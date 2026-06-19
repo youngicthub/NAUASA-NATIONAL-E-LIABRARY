@@ -18,7 +18,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { z } from "zod";
 
-const PRICES = { student: 10000, graduate: 20000, chapter: 50000 } as const;
+const PRICES = { student: 20000, graduate: 30000, chapter: 50000 } as const;
 const LABELS = { student: "Student", graduate: "Graduate / Others", chapter: "Chapter" } as const;
 
 const BREAKOUT_SESSIONS = [
@@ -29,10 +29,10 @@ const BREAKOUT_SESSIONS = [
   "Data Analytics, Technology & Digital Finance",
 ] as const;
 
-// Student discount window — active from now through 22 July 2026
-const STUDENT_DISCOUNT_PRICE = 8500;
+// Student discount window — active through end of July 2026
+const STUDENT_DISCOUNT_PRICE = 15000;
 const DISCOUNT_START = new Date("2026-06-16T00:00:00Z");
-const DISCOUNT_END = new Date("2026-07-22T23:59:59Z");
+const DISCOUNT_END = new Date("2026-07-31T23:59:59Z");
 
 type DelegateDetails = { name: string; phone: string; email: string };
 type DelegateField = keyof DelegateDetails;
@@ -512,10 +512,10 @@ const Convention = () => {
                   {discountActive ? (
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div>
-                        <div className="font-semibold text-accent">Student Discount Active — ₦8,500</div>
+                        <div className="font-semibold text-accent">Student Discount Active — ₦15,000</div>
                         <div className="text-xs text-muted-foreground">Ends {DISCOUNT_END.toUTCString()}</div>
                       </div>
-                      <Badge className="bg-accent text-accent-foreground">SAVE ₦1,500</Badge>
+                      <Badge className="bg-accent text-accent-foreground">SAVE ₦5,000</Badge>
                     </div>
                   ) : discountUpcoming ? (
                     <div>
@@ -534,7 +534,7 @@ const Convention = () => {
                         ))}
                       </div>
                       <div className="text-xs text-muted-foreground mt-2">
-                        Student registration at ₦8,500 from 15 July to 22 July 2026.
+                        Student registration at ₦15,000 (was ₦20,000) until 31 July 2026.
                       </div>
                     </div>
                   ) : (
@@ -681,7 +681,7 @@ const Convention = () => {
               <div className="flex items-center justify-between bg-muted rounded-lg p-4">
                 <div className="text-sm text-muted-foreground">
                   Total payable
-                  {discountActive && <div className="text-xs text-accent">Student discount applied — ₦8,500</div>}
+                  {discountActive && <div className="text-xs text-accent">Student discount applied — ₦15,000</div>}
                 </div>
                 <div className="text-right">
                   {discountActive && (
