@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import presidentAsset from "@/assets/president-daniel-temple.asset.json";
+import presidentPhoto from "@assets/president-daniel-temple.asset.json_1782102193392.jpg";
 
 export const PresidentSection = () => {
   return (
@@ -19,7 +19,7 @@ export const PresidentSection = () => {
             <div className="absolute -inset-4 bg-accent/20 rounded-3xl blur-2xl" aria-hidden />
             <div className="relative rounded-3xl overflow-hidden border-2 border-accent/40 shadow-2xl bg-muted aspect-[4/5] w-full max-w-[380px]">
               <img
-                src={presidentAsset.url}
+                src={presidentPhoto}
                 alt="Daniel O. Temple — NUASA National Executive President"
                 className="w-full h-full object-cover"
                 loading="lazy"

@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { GraduationCap, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import logoIcan from "@/assets/logo-ican.png";
-import logoAnan from "@/assets/logo-anan.png";
+import logoIcan from "@assets/logo-ican_1782102290799.JPG";
+import logoAnan from "@assets/logo-anan_1782102290801.png";
 
 const platforms = [
   {

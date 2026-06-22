@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Loader2, Mail, Phone, User } from "lucide-react";
 import { motion } from "framer-motion";
-import presidentAsset from "@/assets/president-daniel-temple.asset.json";
+import presidentPhoto from "@assets/president-daniel-temple.asset.json_1782102193392.jpg";
 
 type Executive = {
   id: string;
@@ -17,18 +17,6 @@ type Executive = {
   phone: string | null;
   sort_order: number;
   is_active: boolean;
-};
-
-const PRESIDENT: Executive = {
-  id: "__president",
-  full_name: "Daniel O. Temple, AAT",
-  position: "Executive President",
-  bio: "Leading the NUASA National Body — committed to building a thriving community of accounting students across Nigeria.",
-  image_url: presidentAsset.url,
-  email: null,
-  phone: null,
-  sort_order: -1,
-  is_active: true,
 };
 
 const Executives = () => {
@@ -48,7 +36,7 @@ const Executives = () => {
     },
   });
 
-  const list: Executive[] = [PRESIDENT, ...(data || [])];
+  const others: Executive[] = data || [];
 
   return (
     <Layout>
@@ -72,61 +60,94 @@ const Executives = () => {
         </div>
       </section>
 
-      <section className="content-container py-12">
+      <section className="content-container py-14">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="grid lg:grid-cols-[360px_1fr] gap-10 items-center bg-card border border-border rounded-3xl overflow-hidden shadow-lg mb-14"
+        >
+          <div className="aspect-[4/5] relative overflow-hidden">
+            <img
+              src={presidentPhoto}
+              alt="Daniel O. Temple — NUASA National Executive President"
+              className="w-full h-full object-cover"
+            />
+            <span className="absolute top-4 left-4 bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full shadow">
+              Executive President
+            </span>
+          </div>
+          <div className="p-8 lg:p-12">
+            <p className="text-xs uppercase tracking-[0.25em] text-accent font-semibold mb-2">
+              Office of the President
+            </p>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-2">
+              Daniel O. Temple, AAT
+            </h2>
+            <p className="text-base text-accent font-medium mb-5">
+              Executive President, NUASA National Body
+            </p>
+            <p className="text-base text-foreground/80 leading-relaxed">
+              Leading a new chapter for accounting students across Nigeria — building a community
+              that learns, networks, and grows together. From the National E-Library to the annual
+              convention, every initiative is shaped around your journey from classroom to chartered.
+            </p>
+          </div>
+        </motion.div>
+
         {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-accent" />
           </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {list.map((exec, i) => (
-              <motion.div
-                key={exec.id}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.04 }}
-              >
-                <Card className="overflow-hidden h-full flex flex-col">
-                  <div className="aspect-[4/5] bg-muted relative overflow-hidden">
-                    {exec.image_url ? (
-                      <img
-                        src={exec.image_url}
-                        alt={`${exec.full_name} — ${exec.position}`}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        <User className="w-16 h-16" />
-                      </div>
-                    )}
-                    {exec.id === "__president" && (
-                      <span className="absolute top-3 left-3 bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-widest px-2 py-1 rounded">
-                        President
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col">
-                    <h3 className="font-serif font-bold text-lg text-foreground">{exec.full_name}</h3>
-                    <p className="text-sm text-accent font-medium mb-2">{exec.position}</p>
-                    {exec.bio && (
-                      <p className="text-sm text-muted-foreground line-clamp-4 mb-3">{exec.bio}</p>
-                    )}
-                    <div className="mt-auto space-y-1 text-xs text-muted-foreground">
-                      {exec.email && (
-                        <div className="flex items-center gap-2"><Mail className="w-3 h-3" /> {exec.email}</div>
-                      )}
-                      {exec.phone && (
-                        <div className="flex items-center gap-2"><Phone className="w-3 h-3" /> {exec.phone}</div>
+        ) : others.length > 0 ? (
+          <>
+            <h2 className="font-serif text-2xl font-bold text-foreground mb-6">Other Executives</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {others.map((exec, i) => (
+                <motion.div
+                  key={exec.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Card className="overflow-hidden h-full flex flex-col">
+                    <div className="aspect-[4/5] bg-muted relative overflow-hidden">
+                      {exec.image_url ? (
+                        <img
+                          src={exec.image_url}
+                          alt={`${exec.full_name} — ${exec.position}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <User className="w-16 h-16" />
+                        </div>
                       )}
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                    <div className="p-5 flex-1 flex flex-col">
+                      <h3 className="font-serif font-bold text-lg text-foreground">{exec.full_name}</h3>
+                      <p className="text-sm text-accent font-medium mb-2">{exec.position}</p>
+                      {exec.bio && (
+                        <p className="text-sm text-muted-foreground line-clamp-4 mb-3">{exec.bio}</p>
+                      )}
+                      <div className="mt-auto space-y-1 text-xs text-muted-foreground">
+                        {exec.email && (
+                          <div className="flex items-center gap-2"><Mail className="w-3 h-3" /> {exec.email}</div>
+                        )}
+                        {exec.phone && (
+                          <div className="flex items-center gap-2"><Phone className="w-3 h-3" /> {exec.phone}</div>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </>
+        ) : null}
       </section>
     </Layout>
   );
