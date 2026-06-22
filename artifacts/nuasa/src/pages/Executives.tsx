@@ -1,42 +1,88 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/SEO";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Loader2, Mail, Phone, User } from "lucide-react";
+import { Mail, Phone, User } from "lucide-react";
 import { motion } from "framer-motion";
 import presidentPhoto from "@assets/president-daniel-temple.asset.json_1782102193392.jpg";
 
 type Executive = {
-  id: string;
   full_name: string;
   position: string;
-  bio: string | null;
-  image_url: string | null;
-  email: string | null;
-  phone: string | null;
-  sort_order: number;
-  is_active: boolean;
+  bio?: string;
+  image_url?: string;
+  email?: string;
+  phone?: string;
 };
 
-const Executives = () => {
-  const { data, isLoading } = useQuery({
-    queryKey: ["public-executives"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("executives")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
-      if (error) {
-        console.warn("executives table not available yet", error.message);
-        return [] as Executive[];
-      }
-      return (data || []) as Executive[];
-    },
-  });
+const OTHER_EXECUTIVES: Executive[] = [
+  {
+    full_name: "",
+    position: "Vice President",
+    bio: "",
+    image_url: "",
+    email: "",
+    phone: "",
+  },
+  {
+    full_name: "",
+    position: "General Secretary",
+    bio: "",
+    image_url: "",
+    email: "",
+    phone: "",
+  },
+  {
+    full_name: "",
+    position: "Assistant General Secretary",
+    bio: "",
+    image_url: "",
+    email: "",
+    phone: "",
+  },
+  {
+    full_name: "",
+    position: "Financial Secretary",
+    bio: "",
+    image_url: "",
+    email: "",
+    phone: "",
+  },
+  {
+    full_name: "",
+    position: "Treasurer",
+    bio: "",
+    image_url: "",
+    email: "",
+    phone: "",
+  },
+  {
+    full_name: "",
+    position: "Public Relations Officer",
+    bio: "",
+    image_url: "",
+    email: "",
+    phone: "",
+  },
+  {
+    full_name: "",
+    position: "Director of Socials",
+    bio: "",
+    image_url: "",
+    email: "",
+    phone: "",
+  },
+  {
+    full_name: "",
+    position: "Director of Welfare",
+    bio: "",
+    image_url: "",
+    email: "",
+    phone: "",
+  },
+];
 
-  const others: Executive[] = data || [];
+const Executives = () => {
+  const executives = OTHER_EXECUTIVES;
 
   return (
     <Layout>
@@ -96,58 +142,52 @@ const Executives = () => {
           </div>
         </motion.div>
 
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-accent" />
-          </div>
-        ) : others.length > 0 ? (
-          <>
-            <h2 className="font-serif text-2xl font-bold text-foreground mb-6">Other Executives</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {others.map((exec, i) => (
-                <motion.div
-                  key={exec.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  <Card className="overflow-hidden h-full flex flex-col">
-                    <div className="aspect-[4/5] bg-muted relative overflow-hidden">
-                      {exec.image_url ? (
-                        <img
-                          src={exec.image_url}
-                          alt={`${exec.full_name} — ${exec.position}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          <User className="w-16 h-16" />
-                        </div>
-                      )}
+        <h2 className="font-serif text-2xl font-bold text-foreground mb-6">Other Executives</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {executives.map((exec, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <Card className="overflow-hidden h-full flex flex-col">
+                <div className="aspect-[4/5] bg-muted relative overflow-hidden">
+                  {exec.image_url ? (
+                    <img
+                      src={exec.image_url}
+                      alt={`${exec.full_name} — ${exec.position}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-muted-foreground bg-muted">
+                      <User className="w-16 h-16 opacity-40" />
                     </div>
-                    <div className="p-5 flex-1 flex flex-col">
-                      <h3 className="font-serif font-bold text-lg text-foreground">{exec.full_name}</h3>
-                      <p className="text-sm text-accent font-medium mb-2">{exec.position}</p>
-                      {exec.bio && (
-                        <p className="text-sm text-muted-foreground line-clamp-4 mb-3">{exec.bio}</p>
-                      )}
-                      <div className="mt-auto space-y-1 text-xs text-muted-foreground">
-                        {exec.email && (
-                          <div className="flex items-center gap-2"><Mail className="w-3 h-3" /> {exec.email}</div>
-                        )}
-                        {exec.phone && (
-                          <div className="flex items-center gap-2"><Phone className="w-3 h-3" /> {exec.phone}</div>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </>
-        ) : null}
+                  )}
+                </div>
+                <div className="p-5 flex-1 flex flex-col">
+                  <h3 className="font-serif font-bold text-lg text-foreground">
+                    {exec.full_name || <span className="text-muted-foreground italic">Name TBA</span>}
+                  </h3>
+                  <p className="text-sm text-accent font-medium mb-2">{exec.position}</p>
+                  {exec.bio && (
+                    <p className="text-sm text-muted-foreground line-clamp-4 mb-3">{exec.bio}</p>
+                  )}
+                  <div className="mt-auto space-y-1 text-xs text-muted-foreground">
+                    {exec.email && (
+                      <div className="flex items-center gap-2"><Mail className="w-3 h-3" /> {exec.email}</div>
+                    )}
+                    {exec.phone && (
+                      <div className="flex items-center gap-2"><Phone className="w-3 h-3" /> {exec.phone}</div>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
       </section>
     </Layout>
   );
