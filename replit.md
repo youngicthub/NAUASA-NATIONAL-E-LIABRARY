@@ -1,6 +1,6 @@
-# [Project name]
+# NUASA National Body E-Library & Blog
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+The NUASA (National Union of Accountancy Students Association) platform gives Nigerian accounting students access to thousands of academic resources, blog posts, chapter info, events, and convention registration.
 
 ## Run & Operate
 
@@ -22,15 +22,27 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/nuasa/src/` — all frontend source (React + Vite)
+- `artifacts/nuasa/src/pages/` — all page components (public + admin)
+- `artifacts/nuasa/src/contexts/AuthContext.tsx` — Supabase auth context
+- `artifacts/nuasa/src/integrations/supabase/` — Supabase client + types
+- `artifacts/nuasa/src/index.css` — NUASA green theme (Tailwind v3 CSS vars)
+- `artifacts/nuasa/tailwind.config.ts` — Tailwind theme config
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **Supabase kept as-is**: The app has 15+ tables, full auth, and file storage in Supabase. Replacing with Replit primitives is a separate project — the app still connects to the user's Supabase project via `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` secrets.
+- **Tailwind v3** (not v4): uses `postcss.config.js` + `tailwind.config.ts`, not `@tailwindcss/vite`.
+- **react-router-dom** (not wouter): Lovable default; routing is standard BrowserRouter with no base path needed since the app runs at `/`.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **E-Library**: Browse and download thousands of academic resources (PDFs, papers, study guides)
+- **Blog**: Articles and posts for Nigerian accounting students
+- **Chapters**: Directory of NUASA chapters by university
+- **Events & Convention**: Event listings and convention registration with payment
+- **Admin dashboard**: Full CMS for managing resources, posts, users, chapters, events, and settings
+- **User dashboard**: Personal library, downloads, saved resources, and profile settings
 
 ## User preferences
 
