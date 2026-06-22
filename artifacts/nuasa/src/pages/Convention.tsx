@@ -153,6 +153,7 @@ const Convention = () => {
   const [publicKey, setPublicKey] = useState<string>("");
   const [breakoutSession, setBreakoutSession] = useState<string>("");
   const [now, setNow] = useState(() => new Date());
+  const [localExtras, setLocalExtras] = useState<Record<string, { delegates: any[]; breakoutSession: string | null }>>({});
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
@@ -256,7 +257,6 @@ const Convention = () => {
         institution: institution || null,
         chapter_name: type === "chapter" ? chapterName : null,
         delegates_count: type === "chapter" ? 2 : 1,
-        delegates: chapterDelegates,
         amount,
         tx_ref,
         reference_code,
@@ -268,10 +268,17 @@ const Convention = () => {
         accommodation_request: accommodation || null,
         emergency_contact_name: emergencyName || null,
         emergency_contact_phone: emergencyPhone || null,
-        breakout_session: type === "student" ? breakoutSession : null,
       };
       const { error: insErr } = await supabase.from("convention_registrations").insert(insertPayload);
       if (insErr) throw insErr;
+
+      setLocalExtras(prev => ({
+        ...prev,
+        [tx_ref]: {
+          delegates: chapterDelegates,
+          breakoutSession: type === "student" ? breakoutSession : null,
+        },
+      }));
 
       await loadFlutterwave();
       window.FlutterwaveCheckout({
@@ -305,11 +312,19 @@ const Convention = () => {
   };
 
   const printTicket = (r: any) => {
+    const extras = localExtras[r.tx_ref] || {};
+    const delegates: any[] = extras.delegates || [];
+    const breakout: string | null = extras.breakoutSession || null;
     const w = window.open("", "_blank", "width=820,height=1000");
     if (!w) return;
     const row = (label: string, val: any) =>
       val ? `<div class="row"><span>${label}</span><strong>${val}</strong></div>` : "";
     const created = r.created_at ? new Date(r.created_at).toLocaleString() : "";
+    const delegatesHtml = delegates.length
+      ? `<h3>Delegates</h3>${delegates.map((d: any, i: number) =>
+          `<div style="margin-bottom:8px;padding:8px 0;border-bottom:1px dotted #e5e5e5"><strong style="color:#006837">Delegate ${i + 1}</strong>${row("Name", d.name)}${row("Email", d.email)}${row("Phone", d.phone)}</div>`
+        ).join("")}`
+      : "";
     const html = `
       <div class="ticket">
         <div class="head">
@@ -330,7 +345,9 @@ const Convention = () => {
         ${row("Department", r.department)}
         ${row("Matric Number", r.matric_number)}
         ${row("Graduation Year", r.graduation_year)}
-        ${r.chapter_name ? `<h3>Chapter</h3>${row("Chapter Name", r.chapter_name)}${row("Delegates", r.delegates_count)}` : ""}
+        ${breakout ? row("Breakout Session", breakout) : ""}
+        ${r.chapter_name ? `<h3>Chapter</h3>${row("Chapter Name", r.chapter_name)}${row("No. of Delegates", r.delegates_count)}` : ""}
+        ${delegatesHtml}
         <h3>Logistics</h3>
         ${row("Accommodation", r.accommodation_request)}
         ${row("Emergency Contact", r.emergency_contact_name)}
@@ -372,6 +389,9 @@ const Convention = () => {
   };
 
   const downloadReceiptPDF = (r: any) => {
+    const extras = localExtras[r.tx_ref] || {};
+    const delegates: any[] = extras.delegates || [];
+    const breakout: string | null = extras.breakoutSession || null;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const W = doc.internal.pageSize.getWidth();
     let y = 50;
@@ -432,10 +452,21 @@ const Convention = () => {
     row("Matric Number", r.matric_number);
     row("Graduation Year", r.graduation_year);
 
+    if (breakout) row("Breakout Session", breakout);
+
     if (r.chapter_name) {
       section("Chapter");
       row("Chapter Name", r.chapter_name);
-      row("Delegates", r.delegates_count);
+      row("No. of Delegates", r.delegates_count);
+    }
+
+    if (delegates.length > 0) {
+      section("Delegates");
+      delegates.forEach((d: any, i: number) => {
+        row(`Delegate ${i + 1} Name`, d.name);
+        row(`Delegate ${i + 1} Email`, d.email);
+        row(`Delegate ${i + 1} Phone`, d.phone);
+      });
     }
 
     section("Logistics");
