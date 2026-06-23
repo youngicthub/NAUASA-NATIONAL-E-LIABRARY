@@ -8,7 +8,7 @@ interface SEOProps {
   jsonLd?: Record<string, unknown>;
 }
 
-const SITE_URL = "https://nuasa-nationalbodyblog.lovable.app";
+const SITE_URL = "https://nuasanational.com.ng";
 
 export const SEO = ({ title, description, path, type = "website", jsonLd }: SEOProps) => {
   const url = `${SITE_URL}${path}`;

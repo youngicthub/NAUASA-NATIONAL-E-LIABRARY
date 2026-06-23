@@ -477,11 +477,11 @@ const Convention = () => {
     row("Accommodation", r.accommodation_request);
     row("Emergency Contact", r.emergency_contact_name);
     row("Emergency Phone", r.emergency_contact_phone);
-    if (r.notes) row("Notes", r.notes);
+    if (r.notes) row("Convention Expectations & Allergies", r.notes);
 
     section("Payment");
     row("Category", LABELS[r.registration_type as keyof typeof LABELS]);
-    row("Amount Paid", `NGN ${Number(r.amount).toLocaleString()}`);
+    row("Amount Paid", `₦${Number(r.amount).toLocaleString()}`);
     row("Status", (r.payment_status || "").toUpperCase());
     row("Transaction Ref", r.tx_ref);
     row("Flutterwave ID", r.flw_transaction_id);
@@ -742,7 +742,6 @@ const Convention = () => {
                     <SelectContent>
                       <SelectItem value="none">No, I'll arrange my own</SelectItem>
                       <SelectItem value="shared">Yes — shared room</SelectItem>
-                      <SelectItem value="private">Yes — private room</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -750,7 +749,7 @@ const Convention = () => {
                 <div><Label>Emergency Contact Phone</Label><Input value={emergencyPhone} onChange={(e) => setEmergencyPhone(e.target.value)} /></div>
               </div>
 
-              <div><Label>Notes (optional)</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
+              <div><Label>Convention Expectations and Allergies (optional)</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Any dietary requirements, allergies, accessibility needs, or expectations for the convention…" /></div>
 
               <div className="flex items-center justify-between bg-muted rounded-lg p-4">
                 <div className="text-sm text-muted-foreground">
