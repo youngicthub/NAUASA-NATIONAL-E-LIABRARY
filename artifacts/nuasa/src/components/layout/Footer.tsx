@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Award } from "lucide-react";
 import nuasaLogo from "@/assets/nuasa-logo.jpeg";
-import logoIcan from "@/assets/logo-ican.png";
-import logoAnan from "@/assets/logo-anan.png";
+import logoIcan from "@assets/logo-ican_1782102290799.JPG";
+import logoAnan from "@assets/logo-anan_1782102290801.png";
 import logoCima from "@/assets/logo-cima.png";
 import logoFinprep from "@/assets/logo-finprep.jpeg";
 

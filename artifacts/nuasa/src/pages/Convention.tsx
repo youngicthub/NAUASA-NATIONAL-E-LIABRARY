@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2, Printer, CheckCircle2, Calendar, MapPin, Users, Download } from "lucide-react";
+import { Loader2, Printer, CheckCircle2, Calendar, MapPin, Users, Download, PartyPopper, LogIn } from "lucide-react";
 import jsPDF from "jspdf";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -154,6 +154,7 @@ const Convention = () => {
   const [breakoutSession, setBreakoutSession] = useState<string>("");
   const [now, setNow] = useState(() => new Date());
   const [localExtras, setLocalExtras] = useState<Record<string, { delegates: any[]; breakoutSession: string | null }>>({});
+  const [successReg, setSuccessReg] = useState<{ name: string; refCode: string; amount: number } | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
@@ -297,8 +298,11 @@ const Convention = () => {
             const { data } = await supabase.functions.invoke("convention-verify-payment", {
               body: { transaction_id: resp.transaction_id, tx_ref },
             });
-            if (data?.success) toast.success("Payment confirmed! Your registration is complete.");
-            else toast.error("Payment could not be verified.");
+            if (data?.success) {
+              toast.success("Payment confirmed! Your registration is complete.");
+              setSuccessReg({ name: fullName, refCode: reference_code, amount });
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else toast.error("Payment could not be verified.");
           } catch (err: any) { toast.error(err.message); }
           qc.invalidateQueries({ queryKey: ["my-convention-regs"] });
         },
@@ -513,15 +517,54 @@ const Convention = () => {
         </div>
       </section>
 
+      {successReg && (
+        <div className="content-container pt-8">
+          <div className="rounded-2xl border-2 border-accent bg-accent/5 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center shrink-0">
+              <PartyPopper className="w-6 h-6 text-accent-foreground" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-serif text-lg font-bold text-accent mb-1">Registration Successful! 🎉</h3>
+              <p className="text-sm text-foreground/80">
+                <strong>{successReg.name}</strong>, you're registered for the NUASA National Convention.
+                Your reference code is <strong className="font-mono text-accent">{successReg.refCode}</strong>.
+                Amount paid: <strong>₦{successReg.amount.toLocaleString()}</strong>.
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Download or print your receipt below. Keep your reference code — you'll need it at check-in.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setSuccessReg(null)} className="shrink-0">
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
       <section className="content-container py-12 grid lg:grid-cols-[1fr_400px] gap-8">
         <Card className="p-6">
           <h2 className="font-serif text-2xl font-bold mb-1">Register</h2>
           <p className="text-sm text-muted-foreground mb-6">Choose your registration type and complete payment via Flutterwave.</p>
 
           {!user ? (
-            <div className="text-center py-10">
-              <p className="text-muted-foreground mb-4">You must be signed in to register.</p>
-              <Button asChild><Link to="/login">Sign in to register</Link></Button>
+            <div className="flex flex-col items-center justify-center py-14 gap-5 text-center">
+              <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
+                <LogIn className="w-8 h-8 text-accent" />
+              </div>
+              <div>
+                <h3 className="font-serif text-xl font-bold mb-1">Sign in to register</h3>
+                <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+                  You need a NUASA account to register for the convention. Sign in or create a free account to continue.
+                </p>
+              </div>
+              <div className="flex gap-3 flex-wrap justify-center">
+                <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                  <Link to="/login?redirect=/convention">Sign in</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/register?redirect=/convention">Create account</Link>
+                </Button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
