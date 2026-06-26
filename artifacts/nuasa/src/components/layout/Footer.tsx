@@ -140,11 +140,14 @@ export const Footer = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 opacity-80" />
-                <span className="text-sm opacity-80">+234 800 NUASA</span>
+                <span className="text-sm opacity-80">+234 704 884 8731</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-4 h-4 opacity-80" />
-                <span className="text-sm opacity-80">info@nuasa.org</span>
+              <li className="flex items-start gap-3">
+                <Mail className="w-4 h-4 opacity-80 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm opacity-80">nuasanational@gmail.com</span>
+                  <span className="text-sm opacity-80">info@nuasanational.com.ng</span>
+                </div>
               </li>
             </ul>
           </div>
@@ -192,7 +195,14 @@ export const Footer = () => {
             <span className="hidden md:inline opacity-40">•</span>
             <p className="text-sm opacity-60">
               Developed by{" "}
-              <span className="font-semibold text-accent">YoungictHub</span>
+              <a
+                href="https://dangoodnews.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-accent hover:opacity-80 transition-opacity"
+              >
+                YoungICT-Hub
+              </a>
             </p>
           </div>
           <div className="flex items-center gap-6">
