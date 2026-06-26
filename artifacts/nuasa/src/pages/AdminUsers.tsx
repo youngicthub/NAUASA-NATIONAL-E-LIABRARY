@@ -85,13 +85,22 @@ const AdminUsers = () => {
     }
   };
 
+  const setUserRole = async (userId: string, role: "admin" | "user") => {
+    const { error: delErr } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("user_id", userId);
+    if (delErr) throw delErr;
+    const { error: insErr } = await supabase
+      .from("user_roles")
+      .insert({ user_id: userId, role });
+    if (insErr) throw insErr;
+  };
+
   const handlePromoteToAdmin = async (userId: string, name: string) => {
     setPromotingId(userId);
     try {
-      const { error } = await supabase
-        .from("user_roles")
-        .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id" });
-      if (error) throw error;
+      await setUserRole(userId, "admin");
       toast.success(`${name || "User"} has been granted admin access`);
       qc.invalidateQueries({ queryKey: ["admin-users-list"] });
     } catch (e: any) {
@@ -104,10 +113,7 @@ const AdminUsers = () => {
   const handleRevokeAdmin = async (userId: string, name: string) => {
     setPromotingId(userId);
     try {
-      const { error } = await supabase
-        .from("user_roles")
-        .upsert({ user_id: userId, role: "user" }, { onConflict: "user_id" });
-      if (error) throw error;
+      await setUserRole(userId, "user");
       toast.success(`Admin access revoked for ${name || "user"}`);
       qc.invalidateQueries({ queryKey: ["admin-users-list"] });
     } catch (e: any) {
