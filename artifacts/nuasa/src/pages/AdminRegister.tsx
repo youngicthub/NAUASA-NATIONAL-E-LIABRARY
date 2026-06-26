@@ -6,12 +6,40 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth, ADMIN_REGISTRATION_TOKEN } from "@/contexts/AuthContext";
+import { ADMIN_REGISTRATION_TOKEN } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+export const ADMIN_REQUESTS_KEY = "nuasa_admin_requests";
+
+export interface AdminRequest {
+  id: string;
+  userId: string;
+  fullName: string;
+  email: string;
+  reason: string;
+  requestedAt: string;
+}
+
+export function saveAdminRequest(req: Omit<AdminRequest, "id">) {
+  const existing: AdminRequest[] = JSON.parse(
+    localStorage.getItem(ADMIN_REQUESTS_KEY) || "[]"
+  );
+  existing.push({ id: Date.now().toString(), ...req });
+  localStorage.setItem(ADMIN_REQUESTS_KEY, JSON.stringify(existing));
+}
+
+export function getAdminRequests(): AdminRequest[] {
+  return JSON.parse(localStorage.getItem(ADMIN_REQUESTS_KEY) || "[]");
+}
+
+export function removeAdminRequest(id: string) {
+  const existing = getAdminRequests().filter((r) => r.id !== id);
+  localStorage.setItem(ADMIN_REQUESTS_KEY, JSON.stringify(existing));
+}
 
 const AdminRegister = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -42,9 +70,16 @@ const AdminRegister = () => {
 
     setIsLoading(true);
 
-    const { error } = await signUp(formData.email, formData.password, {
-      full_name: formData.fullName,
-      admin_request_reason: formData.reason,
+    const { data, error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: {
+          full_name: formData.fullName,
+          admin_request_reason: formData.reason,
+        },
+      },
     });
 
     if (error) {
@@ -53,8 +88,18 @@ const AdminRegister = () => {
       return;
     }
 
+    if (data?.user) {
+      saveAdminRequest({
+        userId: data.user.id,
+        fullName: formData.fullName,
+        email: formData.email,
+        reason: formData.reason,
+        requestedAt: new Date().toISOString(),
+      });
+    }
+
     toast.success("Account created! Your admin access request is pending review by an existing admin.");
-    navigate("/login");
+    navigate("/admin/login");
   };
 
   return (
@@ -65,7 +110,6 @@ const AdminRegister = () => {
         className="w-full max-w-md"
       >
         <div className="bg-card rounded-2xl border border-border p-8 shadow-xl">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4">
               <Shield className="w-8 h-8 text-primary-foreground" />
@@ -135,9 +179,7 @@ const AdminRegister = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Must be at least 8 characters
-              </p>
+              <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
             </div>
 
             <div className="space-y-2">
@@ -152,7 +194,7 @@ const AdminRegister = () => {
                 required
               />
               <p className="text-xs text-muted-foreground">
-                An existing admin must promote your account before you can access the admin area.
+                An existing admin must approve your request before you can access the admin area.
               </p>
             </div>
 
@@ -176,11 +218,7 @@ const AdminRegister = () => {
               </p>
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full gap-2"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full gap-2" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
