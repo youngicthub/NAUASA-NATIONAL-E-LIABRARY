@@ -29,6 +29,7 @@ export const NIGERIAN_UNIVERSITIES: string[] = [
   "Nigerian Police Academy, Wudil",
   "Nnamdi Azikiwe University, Awka",
   "Obafemi Awolowo University, Ile-Ife",
+  "Al hikmah University Ilorin Kwara state",
   "University of Abuja",
   "University of Agriculture, Zuru",
   "University of Benin",
