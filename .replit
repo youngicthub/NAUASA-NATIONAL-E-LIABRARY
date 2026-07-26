@@ -11,6 +11,27 @@ env = { "CI" = "true" }
 [workflows]
 runButton = "Project"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "NUASA Dev Server"
+
+[[workflows.workflow]]
+name = "NUASA Dev Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=21844 pnpm --filter @workspace/nuasa run dev"
+waitForPort = 21844
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
@@ -61,3 +82,9 @@ externalPort = 80
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+VITE_SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhemdveHhkYXJ2bm5pd21jbnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4NDcyNjksImV4cCI6MjA4NDQyMzI2OX0.0v11vL9PqpQ-HCV1MDzOL3_1-qDML0XP87oWmSgMay8"
+VITE_SUPABASE_URL = "https://qazgoxxdarvnniwmcnst.supabase.co"
