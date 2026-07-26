@@ -4,37 +4,13 @@ import { Calendar, Clock, User, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
 
 export const LatestPosts = () => {
   const { data: posts, isLoading } = useQuery({
     queryKey: ["home-latest-posts"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select(`*, category:categories(name, slug)`)
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(3);
-      if (error) throw error;
-
-      const authorIds = [...new Set((data || []).map((p) => p.author_id).filter(Boolean))];
-      let authorMap: Record<string, string> = {};
-      if (authorIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, full_name")
-          .in("user_id", authorIds as string[]);
-        if (profiles) {
-          authorMap = Object.fromEntries(profiles.map((p) => [p.user_id, p.full_name]));
-        }
-      }
-      return (data || []).map((p) => ({
-        ...p,
-        author_name: p.author_id ? authorMap[p.author_id] || "Admin" : "Admin",
-      }));
-    },
+    queryFn: () => apiFetch<any[]>("/posts?limit=3"),
   });
 
   const featuredPost = posts?.[0];

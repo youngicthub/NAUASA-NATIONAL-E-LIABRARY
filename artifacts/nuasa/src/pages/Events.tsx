@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/SEO";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiFetch } from "@/lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, MapPin, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,19 +11,12 @@ import { format } from "date-fns";
 const Events = () => {
   const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq("is_published", true)
-        .order("start_time", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => apiFetch<any[]>("/events"),
   });
 
   const now = new Date();
-  const upcoming = (events || []).filter((e) => new Date(e.end_time || e.start_time) >= now)
+  const upcoming = (events || [])
+    .filter((e) => new Date(e.end_time || e.start_time) >= now)
     .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
   const past = (events || []).filter((e) => new Date(e.end_time || e.start_time) < now);
 

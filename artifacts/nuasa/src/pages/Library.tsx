@@ -15,39 +15,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiFetch } from "@/lib/api";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Library = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("popular");
-  const { user } = useAuth();
 
   const { data: categories } = useQuery({
     queryKey: ["library-categories"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("*")
-        .in("type", ["library", "both"])
-        .order("name");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => apiFetch<any[]>("/categories?type=library"),
   });
 
   const { data: resources, isLoading } = useQuery({
     queryKey: ["library-resources"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("library_resources")
-        .select(`*, category:categories(name, slug)`)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => apiFetch<any[]>("/resources"),
   });
 
   const filteredResources = (resources || []).filter((resource) => {
@@ -65,17 +48,8 @@ const Library = () => {
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
-  const handleDownload = async (resource: typeof sortedResources[0]) => {
-    // Increment download count
-    await supabase
-      .from("library_resources")
-      .update({ download_count: (resource.download_count || 0) + 1 })
-      .eq("id", resource.id);
-
-    if (user) {
-      await supabase.from("resource_downloads").insert({ user_id: user.id, resource_id: resource.id });
-    }
-
+  const handleDownload = async (resource: (typeof sortedResources)[0]) => {
+    apiFetch(`/resources/${resource.id}/download`, { method: "POST" }).catch(() => {});
     window.open(resource.file_url, "_blank");
     toast.success("Download started!");
   };

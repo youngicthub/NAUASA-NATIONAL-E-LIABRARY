@@ -5,7 +5,7 @@ import { SEO } from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiFetch } from "@/lib/api";
 import { useState } from "react";
 import { Search } from "lucide-react";
 
@@ -14,16 +14,7 @@ const Chapters = () => {
 
   const { data: chapters, isLoading } = useQuery({
     queryKey: ["chapters"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("chapters")
-        .select("*")
-        .eq("is_active", true)
-        .order("display_order", { ascending: true })
-        .order("name", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => apiFetch<any[]>("/chapters"),
   });
 
   const filtered = (chapters || []).filter(
