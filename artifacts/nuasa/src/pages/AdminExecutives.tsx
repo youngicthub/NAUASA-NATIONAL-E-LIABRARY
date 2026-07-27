@@ -58,7 +58,9 @@ const executiveSchema = z.object({
   full_name: z.string().trim().min(2, "Full name is required").max(120, "Full name is too long"),
   position: z.string().trim().min(2, "Position / portfolio is required").max(120, "Position is too long"),
   bio: z.string().trim().max(600, "Bio is too long").transform((value) => value || null),
-  image_url: z.string().trim().url("Image URL is invalid").or(z.literal("")).nullable().transform(normalizeOptionalText),
+  image_url: z.string().trim()
+    .refine((v) => !v || v.startsWith("/") || /^https?:\/\//.test(v), "Image URL is invalid")
+    .or(z.literal("")).nullable().transform(normalizeOptionalText),
   email: z.string().trim().toLowerCase().email("Enter a valid email").or(z.literal("")).nullable().transform(normalizeOptionalText),
   phone: z.string().nullable().transform(normalizeExecutivePhone).refine(isValidOptionalPhone, "Enter a valid phone number"),
   sort_order: z.coerce.number().int().min(0).max(999),
