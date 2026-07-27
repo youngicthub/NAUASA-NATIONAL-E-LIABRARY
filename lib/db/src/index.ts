@@ -1,16 +1,27 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import pg from "pg";
-import * as schema from "./schema";
+import mysql from "mysql2/promise";
 
-const { Pool } = pg;
+const port = Number(process.env.DB_PORT || 3306);
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+export const pool = mysql.createPool({
+  host: process.env.DB_HOST || "127.0.0.1",
+  port: Number.isFinite(port) ? port : 3306,
+  database: process.env.DB_NAME || "nuasa_database",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  waitForConnections: true,
+  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
+  charset: "utf8mb4",
+  namedPlaceholders: false,
+});
+
+export async function query<T = unknown[]>(
+  sql: string,
+  params: unknown[] = [],
+): Promise<T> {
+  const [rows] = await pool.execute(sql, params);
+  return rows as T;
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle(pool, { schema });
-
-export * from "./schema";
+export async function closeDatabase() {
+  await pool.end();
+}

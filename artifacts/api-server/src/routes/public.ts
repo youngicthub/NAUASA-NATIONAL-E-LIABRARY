@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pool } from "@workspace/db";
+import { query } from "@workspace/db";
 
 const router = Router();
 
@@ -7,9 +7,10 @@ const router = Router();
 
 router.get("/posts", async (req, res, next) => {
   try {
-    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : null;
-    const limitClause = limit ? `LIMIT ${limit}` : "";
-    const { rows } = await pool.query(`
+    const parsedLimit = req.query.limit ? parseInt(req.query.limit as string, 10) : 0;
+    const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 100) : 0;
+    const limitClause = limit ? ` LIMIT ${limit}` : "";
+    const rows = await query<any[]>(`
       SELECT bp.*,
              c.name  AS category_name,
              c.slug  AS category_slug,
@@ -21,14 +22,12 @@ router.get("/posts", async (req, res, next) => {
       ORDER  BY bp.published_at DESC
       ${limitClause}
     `);
-    res.json(
-      rows.map((r) => ({
+    res.json(rows.map((r) => ({
         ...r,
         category: r.category_name
           ? { name: r.category_name, slug: r.category_slug }
           : null,
-      })),
-    );
+      })));
   } catch (err) {
     next(err);
   }
@@ -36,7 +35,7 @@ router.get("/posts", async (req, res, next) => {
 
 router.get("/posts/:slug", async (req, res, next) => {
   try {
-    const { rows } = await pool.query(
+      const rows = await query<any[]>(
       `SELECT bp.*,
               c.name  AS category_name,
               c.slug  AS category_slug,
@@ -44,15 +43,15 @@ router.get("/posts/:slug", async (req, res, next) => {
        FROM   blog_posts bp
        LEFT JOIN categories c ON c.id = bp.category_id
        LEFT JOIN profiles   p ON p.user_id = bp.author_id
-       WHERE  bp.slug = $1 AND bp.status = 'published'`,
-      [req.params.slug],
+        WHERE  bp.slug = ? AND bp.status = 'published'`,
+       [req.params.slug],
     );
     if (!rows[0]) {
       res.status(404).json({ error: "Not found" });
       return;
     }
     // Increment view count (fire-and-forget)
-    pool.query("UPDATE blog_posts SET views = views + 1 WHERE id = $1", [rows[0].id]).catch(() => {});
+    query("UPDATE blog_posts SET views = views + 1 WHERE id = ?", [rows[0].id]).catch(() => {});
     res.json({
       ...rows[0],
       category: rows[0].category_name
@@ -66,10 +65,10 @@ router.get("/posts/:slug", async (req, res, next) => {
 
 router.get("/posts/:id/tags", async (req, res, next) => {
   try {
-    const { rows } = await pool.query(
+    const rows = await query<any[]>(
       `SELECT t.* FROM tags t
        JOIN   blog_post_tags bpt ON bpt.tag_id = t.id
-       WHERE  bpt.post_id = $1`,
+       WHERE  bpt.post_id = ?`,
       [req.params.id],
     );
     res.json(rows);
@@ -85,9 +84,9 @@ router.get("/posts/:id/related", async (req, res, next) => {
       res.json([]);
       return;
     }
-    const { rows } = await pool.query(
+    const rows = await query<any[]>(
       `SELECT id, title, slug, read_time FROM blog_posts
-       WHERE  status = 'published' AND category_id = $1 AND id != $2
+       WHERE  status = 'published' AND category_id = ? AND id != ?
        LIMIT  3`,
       [categoryId, req.params.id],
     );
@@ -109,7 +108,7 @@ router.get("/categories", async (req, res, next) => {
       query += " WHERE type IN ('library', 'both')";
     }
     query += " ORDER BY name";
-    const { rows } = await pool.query(query);
+    const rows = await query<any[]>(query);
     res.json(rows);
   } catch (err) {
     next(err);
@@ -120,7 +119,7 @@ router.get("/categories", async (req, res, next) => {
 
 router.get("/tags", async (_req, res, next) => {
   try {
-    const { rows } = await pool.query("SELECT * FROM tags ORDER BY name");
+    const rows = await query<any[]>("SELECT * FROM tags ORDER BY name");
     res.json(rows);
   } catch (err) {
     next(err);
@@ -131,7 +130,7 @@ router.get("/tags", async (_req, res, next) => {
 
 router.get("/events", async (_req, res, next) => {
   try {
-    const { rows } = await pool.query(
+    const rows = await query<any[]>(
       "SELECT * FROM events WHERE is_published = true ORDER BY start_time DESC",
     );
     res.json(rows);
@@ -144,7 +143,7 @@ router.get("/events", async (_req, res, next) => {
 
 router.get("/chapters", async (_req, res, next) => {
   try {
-    const { rows } = await pool.query(
+    const rows = await query<any[]>(
       "SELECT * FROM chapters WHERE is_active = true ORDER BY display_order ASC, name ASC",
     );
     res.json(rows);
@@ -157,7 +156,7 @@ router.get("/chapters", async (_req, res, next) => {
 
 router.get("/resources", async (_req, res, next) => {
   try {
-    const { rows } = await pool.query(`
+    const rows = await query<any[]>(`
       SELECT lr.*,
              c.name AS category_name,
              c.slug AS category_slug
@@ -180,11 +179,11 @@ router.get("/resources", async (_req, res, next) => {
 
 router.get("/resources/:id", async (req, res, next) => {
   try {
-    const { rows } = await pool.query(
+    const rows = await query<any[]>(
       `SELECT lr.*, c.name AS category_name, c.slug AS category_slug
        FROM   library_resources lr
        LEFT JOIN categories c ON c.id = lr.category_id
-       WHERE  lr.id = $1`,
+        WHERE  lr.id = ?`,
       [req.params.id],
     );
     if (!rows[0]) {
@@ -204,8 +203,8 @@ router.get("/resources/:id", async (req, res, next) => {
 
 router.post("/resources/:id/download", async (req, res, next) => {
   try {
-    await pool.query(
-      "UPDATE library_resources SET download_count = download_count + 1 WHERE id = $1",
+    await query(
+      "UPDATE library_resources SET download_count = download_count + 1 WHERE id = ?",
       [req.params.id],
     );
     res.json({ success: true });
@@ -218,7 +217,7 @@ router.post("/resources/:id/download", async (req, res, next) => {
 
 router.get("/executives", async (_req, res, next) => {
   try {
-    const { rows } = await pool.query(
+    const rows = await query<any[]>(
       "SELECT * FROM executives WHERE is_active = true ORDER BY sort_order ASC",
     );
     res.json(rows);
