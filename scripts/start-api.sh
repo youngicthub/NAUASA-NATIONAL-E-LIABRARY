@@ -2,6 +2,16 @@
 # start-api.sh — starts MySQL then the API server (both owned by this process)
 set -euo pipefail
 
+# ── Base URL auto-detection ───────────────────────────────────────────────────
+# Production (NODE_ENV=production) → live domain
+# Everything else                  → localhost (Vite dev server default port)
+if [ "${NODE_ENV:-development}" = "production" ]; then
+  export FRONTEND_URL="${FRONTEND_URL:-http://nuasanational.com.ng}"
+else
+  export FRONTEND_URL="${FRONTEND_URL:-http://localhost:5173}"
+fi
+echo "[start-api] FRONTEND_URL=${FRONTEND_URL}"
+
 MYSQL_DATADIR="/home/runner/.mysql-data"
 MYSQL_UNDODIR="/home/runner/.mysql-undo"
 MYSQL_RUNDIR="/home/runner/.mysql-run"

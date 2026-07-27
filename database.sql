@@ -23,11 +23,11 @@ DROP TABLE IF EXISTS `admin_login_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `admin_login_log` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_agent` text COLLATE utf8mb4_unicode_ci,
-  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_admin_login_log_user` (`user_id`),
@@ -52,10 +52,10 @@ DROP TABLE IF EXISTS `app_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `app_settings` (
-  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` json NOT NULL,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updated_by` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_by` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -77,10 +77,10 @@ DROP TABLE IF EXISTS `auth_tokens`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `auth_tokens` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token_hash` char(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token_hash` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `expires_at` datetime NOT NULL,
   `used_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -109,9 +109,9 @@ DROP TABLE IF EXISTS `blog_post_tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `blog_post_tags` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `post_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tag_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `post_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tag_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_blog_post_tags` (`post_id`,`tag_id`),
   KEY `idx_blog_post_tags_tag` (`tag_id`),
@@ -137,15 +137,15 @@ DROP TABLE IF EXISTS `blog_posts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `blog_posts` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `excerpt` text COLLATE utf8mb4_unicode_ci,
-  `cover_image` text COLLATE utf8mb4_unicode_ci,
-  `author_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `category_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'draft',
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `slug` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `excerpt` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `cover_image` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `author_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `category_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'draft',
   `is_featured` tinyint(1) NOT NULL DEFAULT '0',
   `read_time` int NOT NULL DEFAULT '5',
   `views` int NOT NULL DEFAULT '0',
@@ -180,11 +180,11 @@ DROP TABLE IF EXISTS `categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `categories` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'both',
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `slug` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'both',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
@@ -211,15 +211,15 @@ DROP TABLE IF EXISTS `chapters`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `chapters` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `university` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `group_picture_url` text COLLATE utf8mb4_unicode_ci,
-  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `university` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `slug` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `group_picture_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `established_year` int DEFAULT NULL,
-  `contact_email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `member_count` int NOT NULL DEFAULT '0',
   `social_links` json DEFAULT NULL,
   `display_order` int NOT NULL DEFAULT '0',
@@ -250,31 +250,31 @@ DROP TABLE IF EXISTS `convention_registrations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `convention_registrations` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `registration_type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `full_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `institution` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `chapter_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `registration_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `full_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `institution` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `chapter_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `delegates_count` int NOT NULL DEFAULT '1',
   `delegates` json DEFAULT NULL,
   `amount` decimal(12,2) NOT NULL,
-  `currency` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'NGN',
-  `payment_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
-  `tx_ref` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `flw_transaction_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `reference_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `notes` text COLLATE utf8mb4_unicode_ci,
-  `gender` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `department` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `matric_number` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `currency` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'NGN',
+  `payment_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `tx_ref` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `flw_transaction_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reference_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `gender` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `department` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `matric_number` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `graduation_year` int DEFAULT NULL,
-  `accommodation_request` text COLLATE utf8mb4_unicode_ci,
-  `emergency_contact_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `emergency_contact_phone` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `breakout_session` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `accommodation_request` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `emergency_contact_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `emergency_contact_phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `breakout_session` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -303,16 +303,16 @@ DROP TABLE IF EXISTS `events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `events` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `location` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cover_image` text COLLATE utf8mb4_unicode_ci,
-  `link` text COLLATE utf8mb4_unicode_ci,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `location` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cover_image` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `link` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `start_time` datetime NOT NULL,
   `end_time` datetime DEFAULT NULL,
   `is_published` tinyint(1) NOT NULL DEFAULT '1',
-  `created_by` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -338,13 +338,13 @@ DROP TABLE IF EXISTS `executives`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `executives` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `full_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `position` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `bio` text COLLATE utf8mb4_unicode_ci,
-  `image_url` text COLLATE utf8mb4_unicode_ci,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `phone` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `full_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `position` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `bio` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `image_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `sort_order` int NOT NULL DEFAULT '0',
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -372,9 +372,9 @@ DROP TABLE IF EXISTS `library_resource_tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `library_resource_tags` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `resource_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tag_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `resource_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tag_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_library_resource_tags` (`resource_id`,`tag_id`),
   KEY `idx_library_resource_tags_tag` (`tag_id`),
@@ -400,18 +400,18 @@ DROP TABLE IF EXISTS `library_resources`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `library_resources` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `file_url` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `file_name` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `file_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file_name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_size` int DEFAULT NULL,
-  `file_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cover_image` text COLLATE utf8mb4_unicode_ci,
-  `course` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `level` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `category_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `author_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `file_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cover_image` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `course` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `level` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `category_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `author_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_public` tinyint(1) NOT NULL DEFAULT '0',
   `is_featured` tinyint(1) NOT NULL DEFAULT '0',
   `download_count` int NOT NULL DEFAULT '0',
@@ -443,9 +443,9 @@ DROP TABLE IF EXISTS `post_views`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `post_views` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `post_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `post_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `viewed_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_post_views_user` (`user_id`,`viewed_at` DESC),
@@ -471,13 +471,13 @@ DROP TABLE IF EXISTS `profiles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `profiles` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `full_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `institution` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `academic_level` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `avatar_url` text COLLATE utf8mb4_unicode_ci,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `full_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `institution` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `academic_level` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -505,9 +505,9 @@ DROP TABLE IF EXISTS `resource_downloads`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `resource_downloads` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `resource_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `resource_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `downloaded_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_resource_downloads_user` (`user_id`,`downloaded_at` DESC),
@@ -533,9 +533,9 @@ DROP TABLE IF EXISTS `resource_views`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `resource_views` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `resource_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resource_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `viewed_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_resource_views_resource` (`resource_id`),
@@ -561,9 +561,9 @@ DROP TABLE IF EXISTS `saved_posts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `saved_posts` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `post_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `post_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_saved_posts` (`user_id`,`post_id`),
@@ -590,9 +590,9 @@ DROP TABLE IF EXISTS `saved_resources`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `saved_resources` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `resource_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `resource_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_saved_resources` (`user_id`,`resource_id`),
@@ -619,12 +619,12 @@ DROP TABLE IF EXISTS `site_visits`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `site_visits` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `session_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `path` varchar(2000) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `referrer` text COLLATE utf8mb4_unicode_ci,
-  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `session_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `path` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `referrer` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `user_agent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_site_visits_created_at` (`created_at` DESC),
@@ -638,7 +638,7 @@ CREATE TABLE `site_visits` (
 
 LOCK TABLES `site_visits` WRITE;
 /*!40000 ALTER TABLE `site_visits` DISABLE KEYS */;
-INSERT INTO `site_visits` VALUES ('18cc5096-8181-497e-b6ba-a6d195c317af','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:23:37'),('432f40a3-9b6b-4648-a8df-787686efb60f',NULL,'df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:20:36'),('9fc4101e-b722-4079-a2ea-2d32d132d543',NULL,'dc3db2c8-97f3-4c9d-ac1f-af24b4f4ef52','/','https://www.google.com/','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:19:50'),('ba6cff5e-db18-4296-8592-946b7492ecdd','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:23:34'),('c27ef9bb-3ef8-4aaa-bc3d-c38c66a0f6a2','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:23:52'),('e0d76879-c14a-463e-839c-739990792133',NULL,'b6143ab7-5704-4d17-bb69-da5f23f3fd03','/','https://www.google.com/','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:13:00'),('e1dd368b-97d3-49eb-ba4b-adc1a9bc6585','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:26:24'),('fa8fb7f7-a558-40db-995f-8407cfc9c4ab','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:23:23'),('fc9daa01-bdc5-4ad1-87d9-8a702f0876ee',NULL,'df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/login','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:20:41'),('fe01d5fd-90cf-41de-be01-16320754495b','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:26:26');
+INSERT INTO `site_visits` VALUES ('18cc5096-8181-497e-b6ba-a6d195c317af','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:23:37'),('29db4e50-49a2-428f-a85d-58125f4951c7',NULL,'5270387b-2984-40f0-9abb-d4084b39b87e','/','https://d978107b-ee91-4f6d-84ec-22a40822e80e-00-15b5ryxluqire.picard.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 14:24:31'),('3a28b32d-de12-42be-bc4f-6b70072ba917',NULL,'5270387b-2984-40f0-9abb-d4084b39b87e','/executives','https://d978107b-ee91-4f6d-84ec-22a40822e80e-00-15b5ryxluqire.picard.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 14:28:42'),('432f40a3-9b6b-4648-a8df-787686efb60f',NULL,'df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:20:36'),('9fc4101e-b722-4079-a2ea-2d32d132d543',NULL,'dc3db2c8-97f3-4c9d-ac1f-af24b4f4ef52','/','https://www.google.com/','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:19:50'),('ba6cff5e-db18-4296-8592-946b7492ecdd','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:23:34'),('c27ef9bb-3ef8-4aaa-bc3d-c38c66a0f6a2','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:23:52'),('e0d76879-c14a-463e-839c-739990792133',NULL,'b6143ab7-5704-4d17-bb69-da5f23f3fd03','/','https://www.google.com/','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:13:00'),('e1dd368b-97d3-49eb-ba4b-adc1a9bc6585','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:26:24'),('fa8fb7f7-a558-40db-995f-8407cfc9c4ab','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:23:23'),('fc9daa01-bdc5-4ad1-87d9-8a702f0876ee',NULL,'df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/login','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:20:41'),('fe01d5fd-90cf-41de-be01-16320754495b','a1000001-0000-4000-a000-000000000010','df06f94e-e807-4d7a-9b38-6fbdd2aa552d','/dashboard/convention','https://56ad2e4f-cb9e-4f42-99bd-b4f6b13af4b5-00-1as8o2toa4mft.riker.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 12:26:26');
 /*!40000 ALTER TABLE `site_visits` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -650,9 +650,9 @@ DROP TABLE IF EXISTS `tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tags` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `slug` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
@@ -678,9 +678,9 @@ DROP TABLE IF EXISTS `user_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_roles` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user',
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_user_roles_user_role` (`user_id`,`role`),
@@ -707,9 +707,9 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
-  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -728,6 +728,10 @@ LOCK TABLES `users` WRITE;
 INSERT INTO `users` VALUES ('a1000001-0000-4000-a000-000000000001','onwegoodnessidagbo@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-09 00:00:00','2026-07-09 00:00:00'),('a1000001-0000-4000-a000-000000000002','zubairfatiha502@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-11 00:00:00','2026-07-11 00:00:00'),('a1000001-0000-4000-a000-000000000003','ekwunifevictor250@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-14 00:00:00','2026-07-14 00:00:00'),('a1000001-0000-4000-a000-000000000004','fathiaoluwajuwonloatotileto@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-14 00:00:00','2026-07-14 00:00:00'),('a1000001-0000-4000-a000-000000000005','akpastella229@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-16 00:00:00','2026-07-16 00:00:00'),('a1000001-0000-4000-a000-000000000006','lateefnasirat2002@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-18 00:00:00','2026-07-18 00:00:00'),('a1000001-0000-4000-a000-000000000007','firdaosadeniran2@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-08 00:00:00','2026-07-08 00:00:00'),('a1000001-0000-4000-a000-000000000008','ekundayoglory8@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-23 00:00:00','2026-07-23 00:00:00'),('a1000001-0000-4000-a000-000000000009','raymondfavour72@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-22 00:00:00','2026-07-22 00:00:00'),('a1000001-0000-4000-a000-000000000010','nwokeukwujuliet@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-22 00:00:00','2026-07-22 00:00:00');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'nuasa_database'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -738,4 +742,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-27 12:33:09
+-- Dump completed on 2026-07-27 14:29:45

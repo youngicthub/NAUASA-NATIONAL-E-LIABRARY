@@ -14,6 +14,7 @@ A full-stack e-library platform for NUASA (National University Academic Staff As
 
 ## How to run
 
+### On Replit
 Both services start automatically via their configured workflows:
 
 - **Frontend** (`Frontend` workflow) — `PORT=21844 pnpm --filter @workspace/nuasa run dev`
@@ -22,6 +23,31 @@ Both services start automatically via their configured workflows:
 The frontend is served at `/` (port 21844 → external 80) and the API at `/api` (port 8080).
 
 `scripts/start-api.sh` handles MySQL init, DB/user/schema setup on first run, builds the API, then starts it. MySQL data lives in `~/.mysql-data`; the setup marker at `~/.mysql-run/.db_setup_done` prevents re-running schema import on subsequent starts.
+
+### On your local machine (single command)
+
+```bash
+bash scripts/start-local.sh
+```
+
+This will:
+1. Load your `.env` file (copy from `.env.example` and fill it in first)
+2. Create the MySQL database and user if they don't exist
+3. Import `database.sql` (first run only — skipped if tables already exist)
+4. Install pnpm dependencies if needed
+5. Build + start the API server in the background → `http://localhost:5000`
+6. Start the Vite frontend → `http://localhost:5173`
+
+**Pre-requisites:** Node.js 20+, pnpm, and MySQL 8.0 running locally.
+
+### Base URL (FRONTEND_URL) — auto-detected
+
+| Environment | Value |
+|---|---|
+| `NODE_ENV=production` | `http://nuasanational.com.ng` |
+| anything else (default) | `http://localhost:5173` |
+
+Used in auth email links (verification, password reset). Override by setting `FRONTEND_URL` in your `.env`.
 
 ## Required secrets
 
