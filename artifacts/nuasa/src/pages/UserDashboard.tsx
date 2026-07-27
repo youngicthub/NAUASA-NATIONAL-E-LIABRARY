@@ -16,6 +16,9 @@ import {
   TrendingUp,
   Loader2,
   Save,
+  Award,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -51,6 +54,7 @@ const routeToTab = (path: string) => {
   if (path.endsWith("/downloads")) return "downloads";
   if (path.endsWith("/saved")) return "saved";
   if (path.endsWith("/settings")) return "settings";
+  if (path.endsWith("/convention")) return "convention";
   return "activity";
 };
 
@@ -149,6 +153,24 @@ const UserDashboard = () => {
   const downloadsCount = downloads.length;
   const savedCount = saved.length;
   const viewedCount = recentlyViewed.length;
+
+  // Convention registrations
+  const { data: conventionRegs = [], isLoading: convLoading } = useQuery({
+    queryKey: ["my-convention-regs", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("convention_registrations")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  const confirmedConvReg = conventionRegs.find((r: any) => r.payment_status === "successful");
 
   // Settings form
   const [form, setForm] = useState({
@@ -259,6 +281,11 @@ const UserDashboard = () => {
                     <Bookmark className="w-4 h-4" />
                     Saved Resources
                   </Link>
+                  <Link to="/dashboard/convention" className={`flex items-center gap-3 px-3 py-2 rounded-lg ${tab === "convention" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"} transition-colors`}>
+                    <Award className="w-4 h-4" />
+                    Convention
+                    {confirmedConvReg && <CheckCircle2 className="w-3 h-3 ml-auto text-accent" />}
+                  </Link>
                   <Link to="/dashboard/settings" className={`flex items-center gap-3 px-3 py-2 rounded-lg ${tab === "settings" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"} transition-colors`}>
                     <Settings className="w-4 h-4" />
                     Settings
@@ -295,10 +322,14 @@ const UserDashboard = () => {
               </div>
 
               <Tabs value={tab} onValueChange={(v) => navigate(v === "activity" ? "/dashboard" : `/dashboard/${v}`)} className="space-y-6">
-                <TabsList className="bg-muted">
+                <TabsList className="bg-muted flex-wrap h-auto gap-1">
                   <TabsTrigger value="activity">Recent Activity</TabsTrigger>
                   <TabsTrigger value="downloads">Downloads</TabsTrigger>
                   <TabsTrigger value="saved">Saved</TabsTrigger>
+                  <TabsTrigger value="convention" className="gap-1.5">
+                    Convention
+                    {confirmedConvReg && <CheckCircle2 className="w-3 h-3 text-accent" />}
+                  </TabsTrigger>
                   <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
 
@@ -495,6 +526,99 @@ const UserDashboard = () => {
                           </div>
                         );
                       })}
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="convention" className="space-y-6">
+                  {convLoading ? (
+                    <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
+                  ) : conventionRegs.length === 0 ? (
+                    <div className="bg-card rounded-2xl border border-border p-12 text-center">
+                      <Award className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground mb-2 font-medium">You haven't registered for the convention yet.</p>
+                      <p className="text-xs text-muted-foreground mb-5">Register as a Student, Graduate, or Chapter to secure your spot.</p>
+                      <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                        <Link to="/convention">Register Now</Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {conventionRegs.map((r: any) => (
+                        <div key={r.id} className="bg-card rounded-2xl border border-border overflow-hidden">
+                          {/* Status banner */}
+                          <div className={`px-6 py-3 flex items-center justify-between ${r.payment_status === "successful" ? "bg-accent/10 border-b border-accent/20" : "bg-muted border-b border-border"}`}>
+                            <div className="flex items-center gap-2">
+                              {r.payment_status === "successful"
+                                ? <CheckCircle2 className="w-4 h-4 text-accent" />
+                                : <AlertCircle className="w-4 h-4 text-muted-foreground" />}
+                              <span className={`text-sm font-semibold capitalize ${r.payment_status === "successful" ? "text-accent" : "text-muted-foreground"}`}>
+                                {r.payment_status === "successful" ? "Registration Confirmed" : `Payment ${r.payment_status}`}
+                              </span>
+                            </div>
+                            <Badge variant={r.payment_status === "successful" ? "default" : "secondary"} className={r.payment_status === "successful" ? "bg-accent text-accent-foreground" : ""}>
+                              {(r.registration_type || "").replace(/^\w/, (c: string) => c.toUpperCase())}
+                            </Badge>
+                          </div>
+
+                          <div className="p-6 space-y-4">
+                            {/* Registration ID — the most important field */}
+                            <div className="text-center">
+                              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 font-medium">Convention Registration ID</p>
+                              <div className="font-mono text-xl font-bold tracking-wider bg-muted rounded-lg py-3 px-4 text-primary border border-border">
+                                {r.reference_code}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">Present this ID at the convention check-in desk</p>
+                            </div>
+
+                            {/* Key details grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                              <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Full Name</p>
+                                <p className="font-semibold text-foreground">{r.full_name}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Email</p>
+                                <p className="text-foreground truncate">{r.email}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Phone</p>
+                                <p className="text-foreground">{r.phone}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Amount Paid</p>
+                                <p className="font-semibold text-foreground">₦{Number(r.amount).toLocaleString()}</p>
+                              </div>
+                            </div>
+
+                            {/* Breakout session — highlighted */}
+                            {r.breakout_session && (
+                              <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
+                                <p className="text-xs text-accent font-semibold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                  <Award className="w-3.5 h-3.5" /> Your Breakout Session
+                                </p>
+                                <p className="font-semibold text-foreground text-sm">{r.breakout_session}</p>
+                              </div>
+                            )}
+
+                            {r.institution && (
+                              <div className="text-sm text-muted-foreground">
+                                <span className="font-medium text-foreground">Institution:</span> {r.institution}
+                              </div>
+                            )}
+
+                            <div className="text-xs text-muted-foreground border-t border-border pt-3">
+                              Registered on {r.created_at ? new Date(r.created_at).toLocaleDateString("en-NG", { year: "numeric", month: "long", day: "numeric" }) : "—"}
+                            </div>
+
+                            {r.payment_status === "successful" && (
+                              <Button asChild variant="outline" size="sm" className="w-full gap-2">
+                                <Link to="/convention">View Full Receipt & Print</Link>
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </TabsContent>

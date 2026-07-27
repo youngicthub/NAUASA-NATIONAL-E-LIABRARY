@@ -262,6 +262,7 @@ const Convention = () => {
         tx_ref,
         reference_code,
         notes: notes || null,
+        breakout_session: type === "student" ? breakoutSession || null : null,
         gender: gender || null,
         department: department || null,
         matric_number: matricNumber || null,
@@ -318,7 +319,7 @@ const Convention = () => {
   const printTicket = (r: any) => {
     const extras = localExtras[r.tx_ref] || {};
     const delegates: any[] = extras.delegates || [];
-    const breakout: string | null = extras.breakoutSession || null;
+    const breakout: string | null = r.breakout_session || extras.breakoutSession || null;
     const w = window.open("", "_blank", "width=820,height=1000");
     if (!w) return;
     const row = (label: string, val: any) =>
@@ -395,7 +396,7 @@ const Convention = () => {
   const downloadReceiptPDF = (r: any) => {
     const extras = localExtras[r.tx_ref] || {};
     const delegates: any[] = extras.delegates || [];
-    const breakout: string | null = extras.breakoutSession || null;
+    const breakout: string | null = r.breakout_session || extras.breakoutSession || null;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const W = doc.internal.pageSize.getWidth();
     let y = 50;
@@ -786,16 +787,23 @@ const Convention = () => {
                           <h1 className="font-serif text-lg font-bold text-primary">NUASA National Convention</h1>
                           <div className="text-xs text-muted-foreground">{LABELS[r.registration_type as keyof typeof LABELS]} Registration</div>
                         </div>
-                        <span className={`badge text-xs px-2 py-1 rounded-full ${r.payment_status === "successful" ? "bg-accent text-accent-foreground" : r.payment_status === "pending" ? "bg-muted" : "bg-destructive text-destructive-foreground"}`}>
+                        <span className={`badge text-xs px-2 py-1 rounded-full font-semibold ${r.payment_status === "successful" ? "bg-accent text-accent-foreground" : r.payment_status === "pending" ? "bg-muted text-muted-foreground" : "bg-destructive text-destructive-foreground"}`}>
                           {r.payment_status}
                         </span>
                       </div>
-                      <div className="ref font-mono text-center bg-muted rounded-md py-2 my-3 tracking-widest">{r.reference_code}</div>
-                      <div className="text-sm space-y-1">
+                      <div className="mb-1 text-[10px] text-center font-medium uppercase tracking-widest text-muted-foreground">Registration ID</div>
+                      <div className="ref font-mono text-center bg-muted rounded-md py-2 my-1 tracking-widest text-sm font-bold">{r.reference_code}</div>
+                      <div className="text-sm space-y-1 mt-3">
                         <div className="row flex justify-between border-b border-dashed py-1"><span className="text-muted-foreground">Name</span><strong>{r.full_name}</strong></div>
-                        <div className="row flex justify-between border-b border-dashed py-1"><span className="text-muted-foreground">Email</span><span>{r.email}</span></div>
+                        <div className="row flex justify-between border-b border-dashed py-1"><span className="text-muted-foreground">Email</span><span className="text-right truncate max-w-[55%]">{r.email}</span></div>
                         <div className="row flex justify-between border-b border-dashed py-1"><span className="text-muted-foreground">Phone</span><span>{r.phone}</span></div>
                         {r.chapter_name && <div className="row flex justify-between border-b border-dashed py-1"><span className="text-muted-foreground">Chapter</span><span>{r.chapter_name}</span></div>}
+                        {r.breakout_session && (
+                          <div className="row flex justify-between border-b border-dashed py-1 gap-2">
+                            <span className="text-muted-foreground shrink-0">Breakout Session</span>
+                            <span className="text-right text-accent font-medium">{r.breakout_session}</span>
+                          </div>
+                        )}
                         <div className="row flex justify-between border-b border-dashed py-1"><span className="text-muted-foreground">Amount</span><strong>₦{Number(r.amount).toLocaleString()}</strong></div>
                       </div>
                     </div>

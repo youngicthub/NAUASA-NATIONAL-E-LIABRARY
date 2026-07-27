@@ -92,6 +92,11 @@ const App = () => (
                 <UserDashboard />
               </ProtectedRoute>
             } />
+            <Route path="/dashboard/convention" element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            } />
 
             {/* Admin routes */}
             <Route path="/admin/dashboard" element={
