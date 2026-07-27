@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import fs from "node:fs/promises";
 import multer from "multer";
+import bcrypt from "bcryptjs";
 import { query } from "@workspace/db";
 import { optionalAuth } from "../middleware/auth";
 
@@ -116,6 +117,10 @@ router.post("/data/:table", async (req, res, next) => {
     const inserted: any[] = [];
     for (const input of records) {
       const row = { id: crypto.randomUUID(), ...input };
+      // If inserting into users table with a plain password, hash it first
+      if (table === "users" && typeof row.password === "string" && row.password.length > 0) {
+        row.password_hash = await bcrypt.hash(row.password, 12);
+      }
       delete row.password;
       const keys = Object.keys(row).filter((key) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key));
       const values = keys.map((key) => row[key] === undefined ? null : row[key]);

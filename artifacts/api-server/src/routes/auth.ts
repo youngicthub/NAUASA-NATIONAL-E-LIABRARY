@@ -55,8 +55,8 @@ async function issueVerificationToken(userId: string): Promise<string> {
 router.post("/signup", async (req, res, next) => {
   try {
     const { email, password, metadata = {} } = req.body ?? {};
-    if (!email || !password || password.length < 8) {
-      res.status(400).json({ error: "Email and a password of at least 8 characters are required" });
+    if (!email || !password || password.length < 6) {
+      res.status(400).json({ error: "Email and a password of at least 6 characters are required" });
       return;
     }
     const existing = await query<any[]>("SELECT id FROM users WHERE email = ? LIMIT 1", [email.toLowerCase()]);
@@ -127,8 +127,8 @@ router.post("/admin-signup", async (req, res, next) => {
       return;
     }
 
-    if (!email || !password || password.length < 8) {
-      res.status(400).json({ error: "Email and a password of at least 8 characters are required" });
+    if (!email || !password || password.length < 6) {
+      res.status(400).json({ error: "Email and a password of at least 6 characters are required" });
       return;
     }
 

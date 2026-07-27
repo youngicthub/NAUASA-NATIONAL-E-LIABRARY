@@ -16,6 +16,14 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Current Database: `nuasa_database`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `nuasa_database` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `nuasa_database`;
+
+--
 -- Table structure for table `admin_login_log`
 --
 
@@ -41,7 +49,6 @@ CREATE TABLE `admin_login_log` (
 
 LOCK TABLES `admin_login_log` WRITE;
 /*!40000 ALTER TABLE `admin_login_log` DISABLE KEYS */;
-INSERT INTO `admin_login_log` VALUES ('fd2cd82d-8552-4009-94a6-89219fc1bda5','0c828680-0046-4a23-ae77-b53577cb0fd6','dan.goodnewsoc@gmail.com','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',NULL,'2026-07-27 05:10:15');
 /*!40000 ALTER TABLE `admin_login_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -99,7 +106,6 @@ CREATE TABLE `auth_tokens` (
 
 LOCK TABLES `auth_tokens` WRITE;
 /*!40000 ALTER TABLE `auth_tokens` DISABLE KEYS */;
-INSERT INTO `auth_tokens` VALUES ('d2965c18-1898-4ab6-b75a-565936bc17cc','07b77199-a353-4ac3-af92-726cc276a80b','92be61e4e8d555f2f61ee88ab3dc6501dcc02a809bb0bef096282b1cca68835b','email_verification','2026-07-28 05:06:30',NULL,'2026-07-27 05:06:30');
 /*!40000 ALTER TABLE `auth_tokens` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -292,6 +298,7 @@ CREATE TABLE `convention_registrations` (
 
 LOCK TABLES `convention_registrations` WRITE;
 /*!40000 ALTER TABLE `convention_registrations` DISABLE KEYS */;
+INSERT INTO `convention_registrations` VALUES ('d1000001-0000-4000-d000-000000000001','a1000001-0000-4000-a000-000000000001','student','Onwe Goodness Idagbo','onwegoodnessidagbo@gmail.com','08146622290',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1783623956149-4dfd1n',NULL,'NUASA-REG-2026-001','Breakout Session: Academic Research & Library Science',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-09 00:00:00','2026-07-09 00:00:00'),('d1000001-0000-4000-d000-000000000002','a1000001-0000-4000-a000-000000000002','student','Zubair Fatiha Ayomide','zubairfatiha502@gmail.com','09039431251',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1783726414781-eh1jdp',NULL,'NUASA-REG-2026-002','Breakout Session: Career Development & Professional Networking',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-11 00:00:00','2026-07-11 00:00:00'),('d1000001-0000-4000-d000-000000000003','a1000001-0000-4000-a000-000000000003','student','Victor Akachi Ekwunife','ekwunifevictor250@gmail.com','09161546386',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1784047195736-d70d82',NULL,'NUASA-REG-2026-003','Breakout Session: Mental Health & Student Wellbeing',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-14 00:00:00','2026-07-14 00:00:00'),('d1000001-0000-4000-d000-000000000004','a1000001-0000-4000-a000-000000000004','student','Atotileto Fathia Oluwajuwonlo','fathiaoluwajuwonloatotileto@gmail.com','08116313514',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1784204123062-ttza85',NULL,'NUASA-REG-2026-004','Breakout Session: Leadership & Governance in NUASA',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-14 00:00:00','2026-07-14 00:00:00'),('d1000001-0000-4000-d000-000000000005','a1000001-0000-4000-a000-000000000005','student','Akpa Stella Chiamaka','akpastella229@gmail.com','08169972974',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1784223874178-h13j3x',NULL,'NUASA-REG-2026-005','Breakout Session: Innovation & Technology in Library Science',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-16 00:00:00','2026-07-16 00:00:00'),('d1000001-0000-4000-d000-000000000006','a1000001-0000-4000-a000-000000000006','student','Lateef Nasirat Opeyemi','lateefnasirat2002@gmail.com','08138057535',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1784643838988-r831j6',NULL,'NUASA-REG-2026-006','Breakout Session: Academic Research & Library Science',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-18 00:00:00','2026-07-18 00:00:00'),('d1000001-0000-4000-d000-000000000007','a1000001-0000-4000-a000-000000000007','student','Firdaos Adeniran Adetoro','firdaosadeniran2@gmail.com','09136544715',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1784657679059-xstqva',NULL,'NUASA-REG-2026-007','Breakout Session: Career Development & Professional Networking',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-08 00:00:00','2026-07-08 00:00:00'),('d1000001-0000-4000-d000-000000000008','a1000001-0000-4000-a000-000000000008','student','Ekundayo Glory Eseohe','ekundayoglory8@gmail.com','09064847109',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1784839158028-55s2ks',NULL,'NUASA-REG-2026-008','Breakout Session: Mental Health & Student Wellbeing',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-23 00:00:00','2026-07-23 00:00:00'),('d1000001-0000-4000-d000-000000000009','a1000001-0000-4000-a000-000000000009','student','Raymond Favour Chinecherem','raymondfavour72@gmail.com','09163858196',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1784719914511-tce5wu',NULL,'NUASA-REG-2026-009','Breakout Session: Leadership & Governance in NUASA',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-22 00:00:00','2026-07-22 00:00:00'),('d1000001-0000-4000-d000-000000000010','a1000001-0000-4000-a000-000000000010','student','Nwokeukwu Chisom Juliet','nwokeukwujuliet@gmail.com','09032849308',NULL,NULL,1,NULL,300.00,'NGN','successful','NUASA-1784708531304-km1oha',NULL,'NUASA-REG-2026-010','Breakout Session: Innovation & Technology in Library Science',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-07-22 00:00:00','2026-07-22 00:00:00');
 /*!40000 ALTER TABLE `convention_registrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -492,7 +499,7 @@ CREATE TABLE `profiles` (
 
 LOCK TABLES `profiles` WRITE;
 /*!40000 ALTER TABLE `profiles` DISABLE KEYS */;
-INSERT INTO `profiles` VALUES ('1a03baf2-6651-4b31-a7ae-632a1c6dfc56','07b77199-a353-4ac3-af92-726cc276a80b','Test User','test@test.com',NULL,NULL,NULL,'2026-07-27 05:06:30','2026-07-27 05:06:30'),('c2929166-bbb8-4d06-9081-0562ee34cd7e','0c828680-0046-4a23-ae77-b53577cb0fd6','TechAdmin','dan.goodnewsoc@gmail.com',NULL,NULL,NULL,'2026-07-27 05:10:02','2026-07-27 05:10:02');
+INSERT INTO `profiles` VALUES ('b1000001-0000-4000-b000-000000000001','a1000001-0000-4000-a000-000000000001','Onwe Goodness Idagbo','onwegoodnessidagbo@gmail.com',NULL,NULL,NULL,'2026-07-09 00:00:00','2026-07-09 00:00:00'),('b1000001-0000-4000-b000-000000000002','a1000001-0000-4000-a000-000000000002','Zubair Fatiha Ayomide','zubairfatiha502@gmail.com',NULL,NULL,NULL,'2026-07-11 00:00:00','2026-07-11 00:00:00'),('b1000001-0000-4000-b000-000000000003','a1000001-0000-4000-a000-000000000003','Victor Akachi Ekwunife','ekwunifevictor250@gmail.com',NULL,NULL,NULL,'2026-07-14 00:00:00','2026-07-14 00:00:00'),('b1000001-0000-4000-b000-000000000004','a1000001-0000-4000-a000-000000000004','Atotileto Fathia Oluwajuwonlo','fathiaoluwajuwonloatotileto@gmail.com',NULL,NULL,NULL,'2026-07-14 00:00:00','2026-07-14 00:00:00'),('b1000001-0000-4000-b000-000000000005','a1000001-0000-4000-a000-000000000005','Akpa Stella Chiamaka','akpastella229@gmail.com',NULL,NULL,NULL,'2026-07-16 00:00:00','2026-07-16 00:00:00'),('b1000001-0000-4000-b000-000000000006','a1000001-0000-4000-a000-000000000006','Lateef Nasirat Opeyemi','lateefnasirat2002@gmail.com',NULL,NULL,NULL,'2026-07-18 00:00:00','2026-07-18 00:00:00'),('b1000001-0000-4000-b000-000000000007','a1000001-0000-4000-a000-000000000007','Firdaos Adeniran Adetoro','firdaosadeniran2@gmail.com',NULL,NULL,NULL,'2026-07-08 00:00:00','2026-07-08 00:00:00'),('b1000001-0000-4000-b000-000000000008','a1000001-0000-4000-a000-000000000008','Ekundayo Glory Eseohe','ekundayoglory8@gmail.com',NULL,NULL,NULL,'2026-07-23 00:00:00','2026-07-23 00:00:00'),('b1000001-0000-4000-b000-000000000009','a1000001-0000-4000-a000-000000000009','Raymond Favour Chinecherem','raymondfavour72@gmail.com',NULL,NULL,NULL,'2026-07-22 00:00:00','2026-07-22 00:00:00'),('b1000001-0000-4000-b000-000000000010','a1000001-0000-4000-a000-000000000010','Nwokeukwu Chisom Juliet','nwokeukwujuliet@gmail.com',NULL,NULL,NULL,'2026-07-22 00:00:00','2026-07-22 00:00:00');
 /*!40000 ALTER TABLE `profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -637,7 +644,7 @@ CREATE TABLE `site_visits` (
 
 LOCK TABLES `site_visits` WRITE;
 /*!40000 ALTER TABLE `site_visits` DISABLE KEYS */;
-INSERT INTO `site_visits` VALUES ('44219642-dc02-429b-a1dd-0c7fb367face',NULL,'2e6cae24-377a-4323-a3ca-482116c218e6','/','https://83aaf2dc-c44b-4afc-bcd3-f122cfc89b8a-00-2n5z0px0ft5a4.spock.replit.dev/','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 05:06:40'),('842faa01-c4c5-432d-9341-e00aadd4e131',NULL,'2e6cae24-377a-4323-a3ca-482116c218e6','/register','https://83aaf2dc-c44b-4afc-bcd3-f122cfc89b8a-00-2n5z0px0ft5a4.spock.replit.dev/','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 05:09:11'),('a35c08fb-3742-478d-97bd-1b8b2172efb1',NULL,'2e6cae24-377a-4323-a3ca-482116c218e6','/','https://83aaf2dc-c44b-4afc-bcd3-f122cfc89b8a-00-2n5z0px0ft5a4.spock.replit.dev/','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 05:09:20'),('a4dc6607-a12f-41b0-97d8-19404a1aff72',NULL,'bc73c263-4b0f-4b96-a4e6-7c97350ed38c','/','https://www.google.com/','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 05:06:40'),('cf500923-c201-4cb6-99ac-fe0747a48ea9',NULL,'2e6cae24-377a-4323-a3ca-482116c218e6','/login','https://83aaf2dc-c44b-4afc-bcd3-f122cfc89b8a-00-2n5z0px0ft5a4.spock.replit.dev/','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 05:08:58'),('e0e55b47-24c9-4462-b568-6da3b8483ffa',NULL,'2e6cae24-377a-4323-a3ca-482116c218e6','/','https://83aaf2dc-c44b-4afc-bcd3-f122cfc89b8a-00-2n5z0px0ft5a4.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 04:55:05'),('f5f20281-b41c-435f-91c1-2833a32d118b',NULL,'2e6cae24-377a-4323-a3ca-482116c218e6','/login','https://83aaf2dc-c44b-4afc-bcd3-f122cfc89b8a-00-2n5z0px0ft5a4.spock.replit.dev/','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 05:09:18');
+INSERT INTO `site_visits` VALUES ('a5453cf9-7965-460a-b415-9b4cd69dd7ea',NULL,'5f19a8a8-7741-453d-975d-a154bb051445','/','https://e25aceec-b0da-4aa2-b87b-18067aff507f-00-1m3x1blrp81lv.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=default-frontend','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36','2026-07-27 11:15:57');
 /*!40000 ALTER TABLE `site_visits` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -694,7 +701,7 @@ CREATE TABLE `user_roles` (
 
 LOCK TABLES `user_roles` WRITE;
 /*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
-INSERT INTO `user_roles` VALUES ('3bf16171-d16d-4261-801c-f25fe3f407fd','0c828680-0046-4a23-ae77-b53577cb0fd6','admin','2026-07-27 05:10:02'),('6fb2d71a-fc4b-4e2e-8525-c682957ce5cc','07b77199-a353-4ac3-af92-726cc276a80b','user','2026-07-27 05:06:30');
+INSERT INTO `user_roles` VALUES ('c1000001-0000-4000-c000-000000000001','a1000001-0000-4000-a000-000000000001','user','2026-07-09 00:00:00'),('c1000001-0000-4000-c000-000000000002','a1000001-0000-4000-a000-000000000002','user','2026-07-11 00:00:00'),('c1000001-0000-4000-c000-000000000003','a1000001-0000-4000-a000-000000000003','user','2026-07-14 00:00:00'),('c1000001-0000-4000-c000-000000000004','a1000001-0000-4000-a000-000000000004','user','2026-07-14 00:00:00'),('c1000001-0000-4000-c000-000000000005','a1000001-0000-4000-a000-000000000005','user','2026-07-16 00:00:00'),('c1000001-0000-4000-c000-000000000006','a1000001-0000-4000-a000-000000000006','user','2026-07-18 00:00:00'),('c1000001-0000-4000-c000-000000000007','a1000001-0000-4000-a000-000000000007','user','2026-07-08 00:00:00'),('c1000001-0000-4000-c000-000000000008','a1000001-0000-4000-a000-000000000008','user','2026-07-23 00:00:00'),('c1000001-0000-4000-c000-000000000009','a1000001-0000-4000-a000-000000000009','user','2026-07-22 00:00:00'),('c1000001-0000-4000-c000-000000000010','a1000001-0000-4000-a000-000000000010','user','2026-07-22 00:00:00');
 /*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -724,9 +731,13 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('07b77199-a353-4ac3-af92-726cc276a80b','test@test.com','$2b$12$Z1gD9PxyujC8VQfTJ7mqbea3na/uiOGA42E/DtCu07pDMnXgpxBk2',0,'2026-07-27 05:06:30','2026-07-27 05:06:30'),('0c828680-0046-4a23-ae77-b53577cb0fd6','dan.goodnewsoc@gmail.com','$2b$12$TKIVKYAKnRd1C4w0pZxHt.YDD03cFng8dC9eJ.ERY0YdaRF3XnMxe',1,'2026-07-27 05:10:02','2026-07-27 05:10:02');
+INSERT INTO `users` VALUES ('a1000001-0000-4000-a000-000000000001','onwegoodnessidagbo@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-09 00:00:00','2026-07-09 00:00:00'),('a1000001-0000-4000-a000-000000000002','zubairfatiha502@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-11 00:00:00','2026-07-11 00:00:00'),('a1000001-0000-4000-a000-000000000003','ekwunifevictor250@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-14 00:00:00','2026-07-14 00:00:00'),('a1000001-0000-4000-a000-000000000004','fathiaoluwajuwonloatotileto@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-14 00:00:00','2026-07-14 00:00:00'),('a1000001-0000-4000-a000-000000000005','akpastella229@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-16 00:00:00','2026-07-16 00:00:00'),('a1000001-0000-4000-a000-000000000006','lateefnasirat2002@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-18 00:00:00','2026-07-18 00:00:00'),('a1000001-0000-4000-a000-000000000007','firdaosadeniran2@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-08 00:00:00','2026-07-08 00:00:00'),('a1000001-0000-4000-a000-000000000008','ekundayoglory8@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-23 00:00:00','2026-07-23 00:00:00'),('a1000001-0000-4000-a000-000000000009','raymondfavour72@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-22 00:00:00','2026-07-22 00:00:00'),('a1000001-0000-4000-a000-000000000010','nwokeukwujuliet@gmail.com','$2b$12$kt2aC0qWOP2YhLrIkd87QOZP5kPGjPQFUkyJeJhNB.W4dUHmoUgR2',1,'2026-07-22 00:00:00','2026-07-22 00:00:00');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'nuasa_database'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -737,4 +748,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-27  5:17:19
+-- Dump completed on 2026-07-27 11:27:13
