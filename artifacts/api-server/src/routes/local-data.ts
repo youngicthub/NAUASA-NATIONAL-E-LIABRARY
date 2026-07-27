@@ -63,7 +63,8 @@ function parseFilters(queryParams: Record<string, unknown>) {
     if (operator === "not" && typeof value === "string") {
       filters.push(`\`${column}\` IS NOT NULL`);
     } else if (["eq", "gte", "lte", "lt", "gt"].includes(operator)) {
-      filters.push(`\`${column}\` ${operator === "eq" ? "=" : operator.toUpperCase()} ?`);
+      const SQL_OP: Record<string, string> = { eq: "=", gte: ">=", lte: "<=", lt: "<", gt: ">" };
+      filters.push(`\`${column}\` ${SQL_OP[operator]} ?`);
       params.push(value);
     }
   }
