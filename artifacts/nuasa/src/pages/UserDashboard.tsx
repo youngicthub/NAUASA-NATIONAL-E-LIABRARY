@@ -23,6 +23,9 @@ import {
   LayoutDashboard,
   GraduationCap,
   Shield,
+  Camera,
+  KeyRound,
+  EyeOff,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -187,6 +190,67 @@ const UserDashboard = () => {
       });
     }
   }, [profile]);
+
+  // Passport / avatar upload
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowed.includes(file.type)) { toast.error("Please upload a JPG, PNG, or WEBP image."); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5 MB."); return; }
+    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarUploading(true);
+    try {
+      const token = localStorage.getItem("nuasa_local_access_token");
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/uploads", {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: form,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || "Upload failed");
+      const publicUrl: string = data.publicUrl || `/api/uploads/${data.path}`;
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast.success("Passport photo updated!");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+      setAvatarPreview(null);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  // Change password
+  const [pwForm, setPwForm] = useState({ newPw: "", confirmPw: "" });
+  const [showPw, setShowPw] = useState(false);
+  const [pwLoading, setPwLoading] = useState(false);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pwForm.newPw.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+    if (pwForm.newPw !== pwForm.confirmPw) { toast.error("Passwords do not match"); return; }
+    setPwLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: pwForm.newPw });
+      if (error) throw error;
+      toast.success("Password updated successfully!");
+      setPwForm({ newPw: "", confirmPw: "" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update password");
+    } finally {
+      setPwLoading(false);
+    }
+  };
 
   const saveProfile = useMutation({
     mutationFn: async () => {
@@ -633,6 +697,61 @@ const UserDashboard = () => {
 
                 {/* ── Settings ── */}
                 <TabsContent value="settings" className="space-y-5">
+
+                  {/* Passport / Profile Photo */}
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="px-6 pt-5 pb-3 border-b border-border">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+                        <Camera className="w-4 h-4 text-accent" /> Passport Photo
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">Upload a clear passport-style photo. JPG, PNG or WEBP · max 5 MB.</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center gap-5">
+                        {/* Preview */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-20 h-20 rounded-full border-2 border-border overflow-hidden bg-muted flex items-center justify-center">
+                            {avatarPreview || profile?.avatar_url ? (
+                              <img
+                                src={avatarPreview || profile!.avatar_url!}
+                                alt="Passport photo"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <User className="w-9 h-9 text-muted-foreground/50" />
+                            )}
+                          </div>
+                          {avatarUploading && (
+                            <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+                              <Loader2 className="w-5 h-5 text-white animate-spin" />
+                            </div>
+                          )}
+                        </div>
+                        {/* Upload button */}
+                        <div className="flex-1">
+                          <label htmlFor="avatar-upload" className="cursor-pointer">
+                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-muted hover:bg-muted/70 text-sm font-medium transition-colors ${avatarUploading ? "opacity-50 pointer-events-none" : ""}`}>
+                              <Camera className="w-4 h-4 text-accent" />
+                              {avatarPreview || profile?.avatar_url ? "Change photo" : "Upload photo"}
+                            </div>
+                            <input
+                              id="avatar-upload"
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp,image/gif"
+                              className="sr-only"
+                              onChange={handleAvatarChange}
+                              disabled={avatarUploading}
+                            />
+                          </label>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Your photo appears on your profile and convention badge.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Profile Information */}
                   <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                     <div className="px-6 pt-5 pb-3 border-b border-border">
                       <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
@@ -676,6 +795,61 @@ const UserDashboard = () => {
                     </div>
                   </div>
 
+                  {/* Change Password */}
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="px-6 pt-5 pb-3 border-b border-border">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+                        <KeyRound className="w-4 h-4 text-accent" /> Change Password
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">Choose a new password for your account. At least 8 characters.</p>
+                    </div>
+                    <div className="p-6">
+                      <form onSubmit={handleChangePassword} className="space-y-4 max-w-xl">
+                        <div className="space-y-2">
+                          <Label htmlFor="new-pw">New Password</Label>
+                          <div className="relative">
+                            <Input
+                              id="new-pw"
+                              type={showPw ? "text" : "password"}
+                              placeholder="••••••••"
+                              value={pwForm.newPw}
+                              onChange={(e) => setPwForm({ ...pwForm, newPw: e.target.value })}
+                              className="pr-10"
+                              minLength={8}
+                              required
+                              disabled={pwLoading}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPw(!showPw)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                              {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm-pw">Confirm New Password</Label>
+                          <Input
+                            id="confirm-pw"
+                            type={showPw ? "text" : "password"}
+                            placeholder="••••••••"
+                            value={pwForm.confirmPw}
+                            onChange={(e) => setPwForm({ ...pwForm, confirmPw: e.target.value })}
+                            minLength={8}
+                            required
+                            disabled={pwLoading}
+                          />
+                        </div>
+                        <Button type="submit" disabled={pwLoading} className="gap-2">
+                          {pwLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+                          Update password
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+
+                  {/* Account / Sign out */}
                   <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                     <div className="px-6 pt-5 pb-3 border-b border-border">
                       <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">

@@ -298,7 +298,7 @@ router.post("/reset-password", async (req, res, next) => {
         [crypto.randomUUID(), users[0].id, tokenHash],
       );
       const origin = process.env.FRONTEND_URL || process.env.APP_ORIGIN || "http://localhost";
-      const link = `${origin}/admin/reset-password?token=${rawToken}`;
+      const link = `${origin}/reset-password?token=${rawToken}`;
       if (process.env.SMTP_HOST) {
         await sendMail(
           String(email),
