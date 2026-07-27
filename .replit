@@ -9,6 +9,44 @@ args = ["pnpm", "store", "prune"]
 env = { "CI" = "true" }
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "API Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend"
+
+[[workflows.workflow]]
+name = "API Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=8080 bash /home/runner/workspace/scripts/start-api.sh"
+waitForPort = 8080
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Frontend"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=21844 pnpm --filter @workspace/nuasa run dev"
+waitForPort = 21844
 
 [agent]
 stack = "PNPM_WORKSPACE"
@@ -71,4 +109,4 @@ DB_NAME = "nuasa_database"
 DB_PASSWORD = "nuasa_pass_2026"
 DB_PORT = "3306"
 DB_USER = "nuasa_user"
-FRONTEND_URL = ""
+FRONTEND_URL = "https://83aaf2dc-c44b-4afc-bcd3-f122cfc89b8a-00-2n5z0px0ft5a4.spock.replit.dev"

@@ -16,10 +16,12 @@ A full-stack e-library platform for NUASA (National University Academic Staff As
 
 Both services start automatically via their configured workflows:
 
-- **Frontend** (`artifacts/nuasa: web`) — `pnpm --filter @workspace/nuasa run dev`
-- **API Server** (`artifacts/api-server: API Server`) — `pnpm --filter @workspace/api-server run dev`
+- **Frontend** (`Frontend` workflow) — `PORT=21844 pnpm --filter @workspace/nuasa run dev`
+- **API Server** (`API Server` workflow) — `PORT=8080 bash scripts/start-api.sh`
 
-The frontend is served at `/` and the API at `/api`.
+The frontend is served at `/` (port 21844 → external 80) and the API at `/api` (port 8080).
+
+`scripts/start-api.sh` handles MySQL init, DB/user/schema setup on first run, builds the API, then starts it. MySQL data lives in `~/.mysql-data`; the setup marker at `~/.mysql-run/.db_setup_done` prevents re-running schema import on subsequent starts.
 
 ## Required secrets
 
