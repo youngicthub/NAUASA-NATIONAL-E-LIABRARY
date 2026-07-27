@@ -4,12 +4,15 @@ The NUASA (National Union of Accountancy Students Association) platform gives Ni
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/nuasa run dev` — run the NUASA frontend (port 21844 in Replit)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080 in Replit)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Frontend requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`; the imported project keeps these in `artifacts/nuasa/.env`
+- API requires `DATABASE_URL`; Replit provides this automatically for the development database
+- The API's development database must have the NUASA tables before data-backed routes such as `/api/posts` can return content
 
 ## Stack
 

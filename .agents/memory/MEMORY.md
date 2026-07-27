@@ -1,2 +1,3 @@
 - [NUASA migration - Supabase kept](nuasa-supabase-kept.md) — App kept Supabase connection; replacing with Replit primitives is a separate task.
 - [Lovable migration CSS fix](lovable-css-fix.md) — Lovable apps use @import before @tailwind; copy script doesn't fix this.
+- [Artifact workflows](artifact-workflows.md) — Use artifact-managed service workflows as canonical; remove duplicate legacy workflows after artifact registration.
