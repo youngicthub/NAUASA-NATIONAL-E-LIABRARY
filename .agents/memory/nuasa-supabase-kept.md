@@ -1,10 +1,32 @@
 ---
-name: NUASA migration - Supabase kept
-description: The NUASA app was migrated from Lovable but Supabase was kept as-is due to scope; replacing it is a separate project.
+name: NUASA Supabase migration
+description: What was done when migrating NUASA from Supabase to MySQL — decisions and what the local supabase shim covers.
 ---
 
-The NUASA app has heavy Supabase usage (15+ tables, auth, file storage). During the Lovable→Replit migration, Supabase was deliberately kept connected rather than replaced with Replit primitives. The migration task plan allows this when the Supabase footprint is too large to swap inline.
+# NUASA Supabase → MySQL migration
 
-**Why:** Replacing Supabase would require: new Drizzle schema for 15+ tables, Express routes for all data access, Clerk auth setup, Replit Object Storage for images. This is a separate major project tracked as a follow-up task.
+## What was done
+The Supabase client in `artifacts/nuasa/src/integrations/supabase/client.ts` is a **complete local shim** — it does NOT import `@supabase/supabase-js`. All `supabase.*` calls in the frontend route to the local Express API server at `/api`.
 
-**How to apply:** When the user asks to "remove Supabase" or "migrate to Replit database", treat it as a full backend migration project — scope it carefully before starting.
+All 21 MySQL tables are defined in `database.sql` at the project root. The user imports this file into their own MySQL 8+ server.
+
+## Key decisions
+
+**Why:** Supabase project was paused; migration instructions required local MySQL.
+
+**Admin signup:** `ADMIN_SIGNUP_SECRET` is validated server-side only on `POST /api/auth/admin-signup`. The old `VITE_NUASA_ADMIN_TOKEN` (frontend-exposed) was removed from `AuthContext.tsx` and `AdminRegister.tsx`.
+
+**`site_visits` inserts:** Anonymous visitors need to insert. Added `ANON_INSERT_TABLES` set in `local-data.ts` that bypasses auth requirement for those tables.
+
+**Email tokens:** Stored as SHA-256 hashes in `auth_tokens` table. Raw token only in email link. GET `/api/auth/verify-email?token=…` redirects to `${FRONTEND_URL}/verify-email?status=success|invalid`.
+
+**`AdminResetPassword.tsx`:** Rewritten to read `?token=` from URL query params instead of waiting for Supabase `PASSWORD_RECOVERY` auth event (which local client never emits).
+
+**`AdminUsers.tsx`:** Removed dependency on localStorage admin-request functions (`getAdminRequests`, `removeAdminRequest`) from `AdminRegister.tsx`. Admin delete calls `DELETE /api/auth/users/:id`.
+
+**`public.ts` bug fixed:** Local variable `query` (string) was shadowing imported `query` function — renamed to `sql`.
+
+## How to apply
+- DB credentials go in `.env` (never `.env.example`) — `.env` is now in `.gitignore`
+- `database.sql` is importable with `mysql -u root -p < database.sql`
+- See `MIGRATION_REPORT.md` for full endpoint list and setup commands

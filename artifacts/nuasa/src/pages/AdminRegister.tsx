@@ -6,37 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ADMIN_REGISTRATION_TOKEN } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-export const ADMIN_REQUESTS_KEY = "nuasa_admin_requests";
-
-export interface AdminRequest {
-  id: string;
-  userId: string;
-  fullName: string;
-  email: string;
-  reason: string;
-  requestedAt: string;
-}
-
-export function saveAdminRequest(req: Omit<AdminRequest, "id">) {
-  const existing: AdminRequest[] = JSON.parse(
-    localStorage.getItem(ADMIN_REQUESTS_KEY) || "[]"
-  );
-  existing.push({ id: Date.now().toString(), ...req });
-  localStorage.setItem(ADMIN_REQUESTS_KEY, JSON.stringify(existing));
-}
-
-export function getAdminRequests(): AdminRequest[] {
-  return JSON.parse(localStorage.getItem(ADMIN_REQUESTS_KEY) || "[]");
-}
-
-export function removeAdminRequest(id: string) {
-  const existing = getAdminRequests().filter((r) => r.id !== id);
-  localStorage.setItem(ADMIN_REQUESTS_KEY, JSON.stringify(existing));
-}
 
 const AdminRegister = () => {
   const navigate = useNavigate();
@@ -53,53 +23,45 @@ const AdminRegister = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.accessToken.trim() !== ADMIN_REGISTRATION_TOKEN) {
-      toast.error("Invalid admin access token");
-      return;
-    }
-
     if (formData.password.length < 8) {
       toast.error("Password must be at least 8 characters");
       return;
     }
 
     if (!formData.reason || formData.reason.trim().length < 10) {
-      toast.error("Please provide a reason for requesting admin access");
+      toast.error("Please provide a reason for requesting admin access (at least 10 characters)");
       return;
     }
 
     setIsLoading(true);
 
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: {
+    try {
+      const response = await fetch("/api/auth/admin-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
           full_name: formData.fullName,
-          admin_request_reason: formData.reason,
-        },
-      },
-    });
-
-    if (error) {
-      toast.error(error.message || "Failed to create account");
-      setIsLoading(false);
-      return;
-    }
-
-    if (data?.user) {
-      saveAdminRequest({
-        userId: data.user.id,
-        fullName: formData.fullName,
-        email: formData.email,
-        reason: formData.reason,
-        requestedAt: new Date().toISOString(),
+          reason: formData.reason,
+          secret: formData.accessToken,
+        }),
       });
-    }
 
-    toast.success("Account created! Your admin access request is pending review by an existing admin.");
-    navigate("/admin/login");
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "Failed to create admin account");
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Admin account created successfully! You can now sign in.");
+      navigate("/admin/login");
+    } catch {
+      toast.error("Network error. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -193,9 +155,6 @@ const AdminRegister = () => {
                 disabled={isLoading}
                 required
               />
-              <p className="text-xs text-muted-foreground">
-                An existing admin must approve your request before you can access the admin area.
-              </p>
             </div>
 
             <div className="space-y-2">

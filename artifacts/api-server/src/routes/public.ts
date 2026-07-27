@@ -101,14 +101,15 @@ router.get("/posts/:id/related", async (req, res, next) => {
 router.get("/categories", async (req, res, next) => {
   try {
     const { type } = req.query;
-    let query = "SELECT * FROM categories";
+    // Use a separate `sql` variable to avoid shadowing the imported `query` fn
+    let sql = "SELECT * FROM categories";
     if (type === "blog") {
-      query += " WHERE type IN ('blog', 'both')";
+      sql += " WHERE type IN ('blog', 'both')";
     } else if (type === "library") {
-      query += " WHERE type IN ('library', 'both')";
+      sql += " WHERE type IN ('library', 'both')";
     }
-    query += " ORDER BY name";
-    const rows = await query<any[]>(query);
+    sql += " ORDER BY name";
+    const rows = await query<any[]>(sql);
     res.json(rows);
   } catch (err) {
     next(err);
@@ -131,7 +132,7 @@ router.get("/tags", async (_req, res, next) => {
 router.get("/events", async (_req, res, next) => {
   try {
     const rows = await query<any[]>(
-      "SELECT * FROM events WHERE is_published = true ORDER BY start_time DESC",
+      "SELECT * FROM events WHERE is_published = 1 ORDER BY start_time DESC",
     );
     res.json(rows);
   } catch (err) {
@@ -144,7 +145,7 @@ router.get("/events", async (_req, res, next) => {
 router.get("/chapters", async (_req, res, next) => {
   try {
     const rows = await query<any[]>(
-      "SELECT * FROM chapters WHERE is_active = true ORDER BY display_order ASC, name ASC",
+      "SELECT * FROM chapters WHERE is_active = 1 ORDER BY display_order ASC, name ASC",
     );
     res.json(rows);
   } catch (err) {
@@ -218,7 +219,7 @@ router.post("/resources/:id/download", async (req, res, next) => {
 router.get("/executives", async (_req, res, next) => {
   try {
     const rows = await query<any[]>(
-      "SELECT * FROM executives WHERE is_active = true ORDER BY sort_order ASC",
+      "SELECT * FROM executives WHERE is_active = 1 ORDER BY sort_order ASC",
     );
     res.json(rows);
   } catch (err) {

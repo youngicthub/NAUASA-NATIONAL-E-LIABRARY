@@ -18,9 +18,15 @@ const TABLES = new Set([
   "convention_registrations", "admin_login_log",
 ]);
 
+// Tables anyone (including anonymous visitors) can read
 const PUBLIC_TABLES = new Set([
   "categories", "tags", "blog_posts", "blog_post_tags", "library_resources",
   "chapters", "events", "executives",
+]);
+
+// Tables where anonymous users may INSERT (no auth required for inserts)
+const ANON_INSERT_TABLES = new Set([
+  "site_visits",
 ]);
 
 function assertTable(table: string) {
@@ -28,7 +34,7 @@ function assertTable(table: string) {
   return table;
 }
 
-function cleanColumns(value: unknown, table: string) {
+function cleanColumns(value: unknown, _table: string) {
   const allowed = /^[a-zA-Z0-9_, ]+$/.test(String(value || ""))
     ? String(value).split(",").map((column) => column.trim().split(":")[0]).filter(Boolean)
     : [];
@@ -39,7 +45,7 @@ function parseFilters(queryParams: Record<string, unknown>) {
   const filters: string[] = [];
   const params: unknown[] = [];
   for (const [key, value] of Object.entries(queryParams)) {
-    if (["select", "order", "limit", "offset", "head", "single", "maybeSingle"].includes(key)) continue;
+    if (["select", "order", "limit", "offset", "head", "single", "maybeSingle", "upsert"].includes(key)) continue;
     if (key.startsWith("in.") && typeof value === "string") {
       const column = key.slice(3);
       if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
@@ -73,6 +79,9 @@ function ensureAuth(req: any, res: any) {
 }
 
 router.use("/data", optionalAuth);
+
+// ─── SELECT ───────────────────────────────────────────────────────────────────
+
 router.get("/data/:table", async (req, res, next) => {
   try {
     const table = assertTable(req.params.table);
@@ -95,10 +104,13 @@ router.get("/data/:table", async (req, res, next) => {
   }
 });
 
+// ─── INSERT ───────────────────────────────────────────────────────────────────
+
 router.post("/data/:table", async (req, res, next) => {
   try {
     const table = assertTable(req.params.table);
-    if (!ensureAuth(req, res)) return;
+    // Allow anonymous inserts for specific tables (e.g. site_visits)
+    if (!ANON_INSERT_TABLES.has(table) && !ensureAuth(req, res)) return;
     const records = Array.isArray(req.body) ? req.body : [req.body];
     const inserted: any[] = [];
     for (const input of records) {
@@ -119,6 +131,8 @@ router.post("/data/:table", async (req, res, next) => {
   }
 });
 
+// ─── UPDATE ───────────────────────────────────────────────────────────────────
+
 router.patch("/data/:table", async (req, res, next) => {
   try {
     const table = assertTable(req.params.table);
@@ -137,6 +151,8 @@ router.patch("/data/:table", async (req, res, next) => {
   }
 });
 
+// ─── DELETE ───────────────────────────────────────────────────────────────────
+
 router.delete("/data/:table", async (req, res, next) => {
   try {
     const table = assertTable(req.params.table);
@@ -152,6 +168,8 @@ router.delete("/data/:table", async (req, res, next) => {
     next(err);
   }
 });
+
+// ─── File Uploads ─────────────────────────────────────────────────────────────
 
 router.post("/uploads", optionalAuth, upload.single("file"), async (req, res, next) => {
   try {
@@ -174,6 +192,8 @@ router.get("/uploads/:file", async (req, res) => {
   const file = path.basename(req.params.file);
   res.sendFile(file, { root: uploadDir });
 });
+
+// ─── Edge Functions (compatibility shim) ─────────────────────────────────────
 
 router.post("/functions/:name", optionalAuth, async (req, res) => {
   if (req.params.name === "convention-public-config") {

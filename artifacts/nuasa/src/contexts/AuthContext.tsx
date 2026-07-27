@@ -28,9 +28,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_REGISTRATION_TOKEN = (import.meta.env.VITE_NUASA_ADMIN_TOKEN as string | undefined) || "NUASA_ADMIN_TOKEN";
-export { ADMIN_REGISTRATION_TOKEN };
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
