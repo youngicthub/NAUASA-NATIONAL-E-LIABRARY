@@ -37,14 +37,9 @@ export const Navbar = () => {
               alt="NUASA National Body logo"
               className="w-10 h-10 rounded-lg object-cover"
             />
-            <div className="flex flex-col">
-              <span className="font-serif font-bold text-lg text-foreground leading-tight">
-                NUASA
-              </span>
-              <span className="text-xs text-muted-foreground leading-tight">
-                National Body E-Library
-              </span>
-            </div>
+            <span className="font-serif font-bold text-lg text-foreground leading-tight">
+              NUASA
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
