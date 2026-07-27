@@ -4,14 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import nuasaLogo from "@/assets/nuasa-logo.jpeg";
 import {
-  BookOpen,
-  FileText,
-  Users,
-  Upload,
   Settings as SettingsIcon,
   LogOut,
-  BarChart3,
-  Calendar,
   Loader2,
   User,
   Lock,
@@ -21,7 +15,7 @@ import {
   CreditCard,
   Eye,
   EyeOff,
-  Ticket,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,94 +25,77 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { apiFetch } from "@/lib/api";
 import { toast } from "sonner";
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface FlutterwaveSettings {
+  public_key?: string;
+  secret_key?: string;
+  encryption_key?: string;
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
 const AdminSettings = () => {
   const navigate = useNavigate();
   const { signOut, user, profile, refreshProfile } = useAuth();
 
-  const [fullName, setFullName] = useState("");
-  const [institution, setInstitution] = useState("");
+  // ── Profile ──────────────────────────────────────────────────────────────────
+  const [fullName, setFullName]           = useState("");
+  const [institution, setInstitution]     = useState("");
   const [academicLevel, setAcademicLevel] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
-  const [newPassword, setNewPassword] = useState("");
+  // ── Security ─────────────────────────────────────────────────────────────────
+  const [newPassword, setNewPassword]         = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [savingPassword, setSavingPassword] = useState(false);
+  const [savingPassword, setSavingPassword]   = useState(false);
 
-  const [siteName, setSiteName] = useState("NUASA National Body E-Library");
-  const [siteTagline, setSiteTagline] = useState(
-    "Empowering Nigerian accounting students with quality resources."
-  );
-  const [contactEmail, setContactEmail] = useState("info@nuasa.org");
+  // ── Site Settings (local only for now) ───────────────────────────────────────
+  const [siteName, setSiteName]                     = useState("NUASA National Body E-Library");
+  const [siteTagline, setSiteTagline]               = useState("Empowering Nigerian accounting students with quality resources.");
+  const [contactEmail, setContactEmail]             = useState("info@nuasa.org");
   const [allowRegistrations, setAllowRegistrations] = useState(true);
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [maintenanceMode, setMaintenanceMode]       = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [newResourceAlerts, setNewResourceAlerts] = useState(true);
-  const [theme, setTheme] = useState<"light" | "dark" | "system">(
-    (localStorage.getItem("nuasa-theme") as "light" | "dark" | "system") || "system"
+  const [newResourceAlerts, setNewResourceAlerts]   = useState(true);
+  const [theme, setTheme]                           = useState<"light" | "dark" | "system">(
+    (localStorage.getItem("nuasa-theme") as "light" | "dark" | "system") || "system",
   );
 
-  // Flutterwave keys
-  const [flwPublicKey, setFlwPublicKey] = useState("");
-  const [flwSecretKey, setFlwSecretKey] = useState("");
+  // ── Flutterwave ───────────────────────────────────────────────────────────────
+  const [flwPublicKey, setFlwPublicKey]         = useState("");
+  const [flwSecretKey, setFlwSecretKey]         = useState("");
   const [flwEncryptionKey, setFlwEncryptionKey] = useState("");
-  const [showSecret, setShowSecret] = useState(false);
-  const [showEncryption, setShowEncryption] = useState(false);
-  const [loadingFlw, setLoadingFlw] = useState(true);
-  const [savingFlw, setSavingFlw] = useState(false);
+  const [showSecret, setShowSecret]             = useState(false);
+  const [showEncryption, setShowEncryption]     = useState(false);
+  const [loadingFlw, setLoadingFlw]             = useState(true);
+  const [savingFlw, setSavingFlw]               = useState(false);
+  const [flwSaved, setFlwSaved]                 = useState(false);
 
+  // ── Load Flutterwave keys from DB on mount ─────────────────────────────────
   useEffect(() => {
-    (async () => {
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "flutterwave")
-        .maybeSingle();
-      if (!error && data?.value) {
-        const v = data.value as {
-          public_key?: string;
-          secret_key?: string;
-          encryption_key?: string;
-        };
-        setFlwPublicKey(v.public_key || "");
-        setFlwSecretKey(v.secret_key || "");
-        setFlwEncryptionKey(v.encryption_key || "");
-      }
-      setLoadingFlw(false);
-    })();
+    apiFetch<{ data: FlutterwaveSettings; error: null }>("/admin/settings/flutterwave")
+      .then(({ data }) => {
+        setFlwPublicKey(data?.public_key     || "");
+        setFlwSecretKey(data?.secret_key     || "");
+        setFlwEncryptionKey(data?.encryption_key || "");
+      })
+      .catch(() => {/* keys simply stay blank if fetch fails */})
+      .finally(() => setLoadingFlw(false));
   }, []);
 
-  const saveFlutterwave = async () => {
-    if (!user) return;
-    setSavingFlw(true);
-    const { error } = await supabase
-      .from("app_settings")
-      .upsert({
-        key: "flutterwave",
-        value: {
-          public_key: flwPublicKey.trim(),
-          secret_key: flwSecretKey.trim(),
-          encryption_key: flwEncryptionKey.trim(),
-        },
-        updated_at: new Date().toISOString(),
-        updated_by: user.id,
-      });
-    setSavingFlw(false);
-    if (error) return toast.error(error.message);
-    toast.success("Flutterwave keys saved");
-  };
-
+  // ── Load profile ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (profile) {
-      setFullName(profile.full_name || "");
-      setInstitution(profile.institution || "");
+      setFullName(profile.full_name     || "");
+      setInstitution(profile.institution  || "");
       setAcademicLevel(profile.academic_level || "");
     }
   }, [profile]);
 
+  // ── Load site settings from localStorage ─────────────────────────────────
   useEffect(() => {
     const stored = localStorage.getItem("nuasa-site-settings");
     if (stored) {
@@ -136,53 +113,82 @@ const AdminSettings = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/admin/login");
+  const handleLogout = async () => { await signOut(); navigate("/admin/login"); };
+
+  // ── Save Flutterwave keys → database ─────────────────────────────────────
+  const saveFlutterwave = async () => {
+    if (!flwPublicKey.trim()) {
+      toast.error("Public Key is required");
+      return;
+    }
+    setSavingFlw(true);
+    setFlwSaved(false);
+    try {
+      await apiFetch("/admin/settings/flutterwave", {
+        method: "PUT",
+        body: JSON.stringify({
+          public_key:     flwPublicKey.trim(),
+          secret_key:     flwSecretKey.trim(),
+          encryption_key: flwEncryptionKey.trim(),
+        }),
+      });
+      toast.success("Flutterwave keys saved to database");
+      setFlwSaved(true);
+      setTimeout(() => setFlwSaved(false), 3000);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save Flutterwave keys");
+    } finally {
+      setSavingFlw(false);
+    }
   };
 
+  // ── Save profile (uses local API via /api/auth endpoint) ─────────────────
   const saveProfile = async () => {
     if (!user) return;
     setSavingProfile(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        full_name: fullName,
-        institution: institution || null,
-        academic_level: academicLevel || null,
-      })
-      .eq("user_id", user.id);
-    setSavingProfile(false);
-    if (error) return toast.error(error.message);
-    await refreshProfile();
-    toast.success("Profile updated");
+    try {
+      await apiFetch(`/data/profiles?eq.user_id=${user.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          full_name:      fullName,
+          institution:    institution || null,
+          academic_level: academicLevel || null,
+        }),
+      });
+      await refreshProfile();
+      toast.success("Profile updated");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update profile");
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
+  // ── Change password ───────────────────────────────────────────────────────
   const updatePassword = async () => {
     if (newPassword.length < 8) return toast.error("Password must be at least 8 characters");
     if (newPassword !== confirmPassword) return toast.error("Passwords do not match");
     setSavingPassword(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    setSavingPassword(false);
-    if (error) return toast.error(error.message);
-    setNewPassword("");
-    setConfirmPassword("");
-    toast.success("Password updated");
+    try {
+      await apiFetch("/auth/password", {
+        method: "POST",
+        body: JSON.stringify({ new_password: newPassword }),
+      });
+      setNewPassword("");
+      setConfirmPassword("");
+      toast.success("Password updated");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update password");
+    } finally {
+      setSavingPassword(false);
+    }
   };
 
   const saveSiteSettings = () => {
-    localStorage.setItem(
-      "nuasa-site-settings",
-      JSON.stringify({
-        siteName,
-        siteTagline,
-        contactEmail,
-        allowRegistrations,
-        maintenanceMode,
-        emailNotifications,
-        newResourceAlerts,
-      })
-    );
+    localStorage.setItem("nuasa-site-settings", JSON.stringify({
+      siteName, siteTagline, contactEmail,
+      allowRegistrations, maintenanceMode, emailNotifications, newResourceAlerts,
+    }));
     toast.success("Site settings saved");
   };
 
@@ -197,6 +203,7 @@ const AdminSettings = () => {
     toast.success(`Theme set to ${val}`);
   };
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background">
       <div className="flex">
@@ -205,36 +212,23 @@ const AdminSettings = () => {
         <main className="flex-1 ml-64 p-8 max-w-5xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="mb-8">
-              <h1 className="font-serif text-3xl font-bold text-foreground mb-1">
-                Settings
-              </h1>
+              <h1 className="font-serif text-3xl font-bold text-foreground mb-1">Settings</h1>
               <p className="text-muted-foreground">
-                Manage your profile, security, site preferences and notifications.
+                Manage your profile, security, site preferences, and payment gateway.
               </p>
             </div>
 
-            <Tabs defaultValue="profile" className="w-full">
+            <Tabs defaultValue="payments" className="w-full">
               <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 mb-6">
-                <TabsTrigger value="profile" className="gap-2">
-                  <User className="w-4 h-4" /> Profile
-                </TabsTrigger>
-                <TabsTrigger value="security" className="gap-2">
-                  <Lock className="w-4 h-4" /> Security
-                </TabsTrigger>
-                <TabsTrigger value="site" className="gap-2">
-                  <SettingsIcon className="w-4 h-4" /> Site
-                </TabsTrigger>
-                <TabsTrigger value="payments" className="gap-2">
-                  <CreditCard className="w-4 h-4" /> Payments
-                </TabsTrigger>
-                <TabsTrigger value="notifications" className="gap-2">
-                  <Bell className="w-4 h-4" /> Alerts
-                </TabsTrigger>
-                <TabsTrigger value="appearance" className="gap-2">
-                  <Palette className="w-4 h-4" /> Theme
-                </TabsTrigger>
+                <TabsTrigger value="profile"       className="gap-2"><User        className="w-4 h-4" /> Profile</TabsTrigger>
+                <TabsTrigger value="security"      className="gap-2"><Lock        className="w-4 h-4" /> Security</TabsTrigger>
+                <TabsTrigger value="site"          className="gap-2"><SettingsIcon className="w-4 h-4" /> Site</TabsTrigger>
+                <TabsTrigger value="payments"      className="gap-2"><CreditCard  className="w-4 h-4" /> Payments</TabsTrigger>
+                <TabsTrigger value="notifications" className="gap-2"><Bell        className="w-4 h-4" /> Alerts</TabsTrigger>
+                <TabsTrigger value="appearance"    className="gap-2"><Palette     className="w-4 h-4" /> Theme</TabsTrigger>
               </TabsList>
 
+              {/* ── Profile ─────────────────────────────────────────────── */}
               <TabsContent value="profile">
                 <Card>
                   <CardHeader>
@@ -268,6 +262,7 @@ const AdminSettings = () => {
                 </Card>
               </TabsContent>
 
+              {/* ── Security ────────────────────────────────────────────── */}
               <TabsContent value="security">
                 <Card>
                   <CardHeader>
@@ -301,6 +296,7 @@ const AdminSettings = () => {
                 </Card>
               </TabsContent>
 
+              {/* ── Site ────────────────────────────────────────────────── */}
               <TabsContent value="site">
                 <Card>
                   <CardHeader>
@@ -342,41 +338,62 @@ const AdminSettings = () => {
                 </Card>
               </TabsContent>
 
+              {/* ── Payments / Flutterwave ───────────────────────────────── */}
               <TabsContent value="payments">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Flutterwave Payments</CardTitle>
-                    <CardDescription>
-                      Enter your Flutterwave API keys. They are stored securely and used by the
-                      backend to process convention registrations.
-                    </CardDescription>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          <CreditCard className="w-5 h-5 text-accent" />
+                          Flutterwave Payment Gateway
+                        </CardTitle>
+                        <CardDescription className="mt-1">
+                          Enter your Flutterwave API keys. They are stored in the database and used
+                          to process convention registration payments.
+                        </CardDescription>
+                      </div>
+                      {flwSaved && (
+                        <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Saved
+                        </div>
+                      )}
+                    </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-5">
                     {loadingFlw ? (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+                      <div className="flex items-center gap-2 text-muted-foreground py-4">
+                        <Loader2 className="w-4 h-4 animate-spin" /> Loading saved keys…
                       </div>
                     ) : (
                       <>
+                        {/* Public Key */}
                         <div>
-                          <Label>Public Key</Label>
+                          <Label htmlFor="flw-public">Public Key <span className="text-destructive">*</span></Label>
                           <Input
-                            placeholder="FLWPUBK-..."
+                            id="flw-public"
+                            placeholder="FLWPUBK-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-X"
                             value={flwPublicKey}
                             onChange={(e) => setFlwPublicKey(e.target.value)}
+                            className="font-mono text-sm"
                           />
                           <p className="text-xs text-muted-foreground mt-1">
                             Used on the checkout page. Safe to expose to browsers.
                           </p>
                         </div>
+
+                        {/* Secret Key */}
                         <div>
-                          <Label>Secret Key</Label>
+                          <Label htmlFor="flw-secret">Secret Key</Label>
                           <div className="flex gap-2">
                             <Input
+                              id="flw-secret"
                               type={showSecret ? "text" : "password"}
-                              placeholder="FLWSECK-..."
+                              placeholder="FLWSECK-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-X"
                               value={flwSecretKey}
                               onChange={(e) => setFlwSecretKey(e.target.value)}
+                              className="font-mono text-sm"
                             />
                             <Button
                               type="button"
@@ -389,17 +406,21 @@ const AdminSettings = () => {
                             </Button>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Used by backend functions only. Never exposed to the browser.
+                            Used by the server only. Never exposed to the browser.
                           </p>
                         </div>
+
+                        {/* Encryption Key */}
                         <div>
-                          <Label>Encryption Key (optional)</Label>
+                          <Label htmlFor="flw-encrypt">Encryption Key <span className="text-muted-foreground text-xs">(optional)</span></Label>
                           <div className="flex gap-2">
                             <Input
+                              id="flw-encrypt"
                               type={showEncryption ? "text" : "password"}
-                              placeholder="FLWSECK_TEST..."
+                              placeholder="FLWENCK-…"
                               value={flwEncryptionKey}
                               onChange={(e) => setFlwEncryptionKey(e.target.value)}
+                              className="font-mono text-sm"
                             />
                             <Button
                               type="button"
@@ -412,12 +433,22 @@ const AdminSettings = () => {
                             </Button>
                           </div>
                         </div>
-                        <Button onClick={saveFlutterwave} disabled={savingFlw} className="gap-2">
-                          {savingFlw ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Save className="w-4 h-4" />
-                          )}
+
+                        {/* Info banner */}
+                        <div className="rounded-lg bg-muted/50 border border-border p-4 text-sm text-muted-foreground space-y-1">
+                          <p className="font-medium text-foreground">Where to find your keys</p>
+                          <p>Log in to your <a href="https://dashboard.flutterwave.com/settings/apis" target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2">Flutterwave dashboard → Settings → API</a> and copy the keys for your environment.</p>
+                          <p>Use <span className="font-mono bg-background px-1 rounded">Test</span> keys during development and <span className="font-mono bg-background px-1 rounded">Live</span> keys in production.</p>
+                        </div>
+
+                        <Button
+                          onClick={saveFlutterwave}
+                          disabled={savingFlw}
+                          className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
+                        >
+                          {savingFlw
+                            ? <Loader2 className="w-4 h-4 animate-spin" />
+                            : <Save className="w-4 h-4" />}
                           Save Flutterwave Keys
                         </Button>
                       </>
@@ -426,6 +457,7 @@ const AdminSettings = () => {
                 </Card>
               </TabsContent>
 
+              {/* ── Notifications ────────────────────────────────────────── */}
               <TabsContent value="notifications">
                 <Card>
                   <CardHeader>
@@ -454,6 +486,7 @@ const AdminSettings = () => {
                 </Card>
               </TabsContent>
 
+              {/* ── Appearance ───────────────────────────────────────────── */}
               <TabsContent value="appearance">
                 <Card>
                   <CardHeader>
@@ -479,6 +512,7 @@ const AdminSettings = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
+
             </Tabs>
           </motion.div>
         </main>

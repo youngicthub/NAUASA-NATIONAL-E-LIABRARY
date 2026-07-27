@@ -239,7 +239,23 @@ router.get("/uploads/:file", async (req, res) => {
 
 router.post("/functions/:name", optionalAuth, async (req, res) => {
   if (req.params.name === "convention-public-config") {
-    res.json({ data: { public_key: process.env.FLUTTERWAVE_PUBLIC_KEY || "" }, error: null });
+    // Read public key from app_settings (saved by admin), fall back to env var
+    try {
+      const rows = await query<{ value: unknown }[]>(
+        "SELECT `value` FROM `app_settings` WHERE `key` = 'flutterwave' LIMIT 1",
+      );
+      let publicKey = process.env.FLUTTERWAVE_PUBLIC_KEY || "";
+      if (rows[0]?.value) {
+        const v: Record<string, string> =
+          typeof rows[0].value === "object"
+            ? (rows[0].value as Record<string, string>)
+            : JSON.parse(rows[0].value as string);
+        if (v.public_key) publicKey = v.public_key;
+      }
+      res.json({ data: { public_key: publicKey }, error: null });
+    } catch {
+      res.json({ data: { public_key: process.env.FLUTTERWAVE_PUBLIC_KEY || "" }, error: null });
+    }
     return;
   }
   if (req.params.name === "convention-verify-payment") {
