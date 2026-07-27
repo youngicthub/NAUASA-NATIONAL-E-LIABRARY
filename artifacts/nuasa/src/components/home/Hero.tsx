@@ -32,11 +32,6 @@ export const Hero = () => {
             transition={{ duration: 0.6 }}
             className="text-primary-foreground"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/30 text-accent text-xs tracking-[0.2em] uppercase font-medium mb-6 backdrop-blur-sm">
-              <Award className="w-3.5 h-3.5" />
-              NUASA National Body E-Library
-            </div>
-
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 text-balance">
               Unlock Your{" "}
               <span className="text-gradient italic">Academic Potential</span>
