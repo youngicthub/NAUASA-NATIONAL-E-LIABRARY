@@ -567,6 +567,21 @@ const Convention = () => {
                 </Button>
               </div>
             </div>
+          ) : registrations?.some((r) => r.payment_status === "successful") ? (
+            <div className="flex flex-col items-center justify-center py-14 gap-5 text-center">
+              <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-accent" />
+              </div>
+              <div>
+                <h3 className="font-serif text-xl font-bold mb-1 text-accent">You're already registered!</h3>
+                <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+                  You have an active registration for the NUASA National Convention. You cannot register again.
+                </p>
+              </div>
+              <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <Link to="/dashboard/convention">View My Registration</Link>
+              </Button>
+            </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
@@ -804,7 +819,7 @@ const Convention = () => {
                             <span className="text-right text-accent font-medium">{r.breakout_session}</span>
                           </div>
                         )}
-                        <div className="row flex justify-between border-b border-dashed py-1"><span className="text-muted-foreground">Amount</span><strong>₦{Number(r.amount).toLocaleString()}</strong></div>
+                        {/* Amount intentionally hidden — only category shown */}
                       </div>
                     </div>
                   </div>

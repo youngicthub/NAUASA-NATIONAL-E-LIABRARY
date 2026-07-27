@@ -20,6 +20,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
+  LayoutDashboard,
+  GraduationCap,
+  Shield,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -59,6 +62,12 @@ const routeToTab = (path: string) => {
   return "activity";
 };
 
+const REGISTRATION_LABELS: Record<string, string> = {
+  student: "Student",
+  graduate: "Graduate",
+  chapter: "Chapter",
+};
+
 const UserDashboard = () => {
   const { user, profile, signOut, refreshProfile } = useAuth();
   const queryClient = useQueryClient();
@@ -68,7 +77,6 @@ const UserDashboard = () => {
 
   const firstName = profile?.full_name?.split(" ")[0] || "there";
 
-  // Recently viewed resources
   const { data: recentlyViewed = [], isLoading: viewsLoading } = useQuery({
     queryKey: ["recently-viewed", user?.id],
     queryFn: async () => {
@@ -93,7 +101,6 @@ const UserDashboard = () => {
     enabled: !!user,
   });
 
-  // Recently read posts
   const { data: recentlyRead = [], isLoading: readsLoading } = useQuery({
     queryKey: ["recently-read-posts", user?.id],
     queryFn: async () => {
@@ -118,7 +125,6 @@ const UserDashboard = () => {
     enabled: !!user,
   });
 
-  // Downloads
   const { data: downloads = [], isLoading: downloadsLoading } = useQuery({
     queryKey: ["my-downloads", user?.id],
     queryFn: async () => {
@@ -135,7 +141,6 @@ const UserDashboard = () => {
     enabled: !!user,
   });
 
-  // Saved resources
   const { data: saved = [], isLoading: savedLoading } = useQuery({
     queryKey: ["my-saved", user?.id],
     queryFn: async () => {
@@ -155,7 +160,6 @@ const UserDashboard = () => {
   const savedCount = saved.length;
   const viewedCount = recentlyViewed.length;
 
-  // Convention registrations
   const { data: conventionRegs = [], isLoading: convLoading } = useQuery({
     queryKey: ["my-convention-regs", user?.id],
     queryFn: async () => {
@@ -173,12 +177,7 @@ const UserDashboard = () => {
 
   const confirmedConvReg = conventionRegs.find((r: any) => r.payment_status === "successful");
 
-  // Settings form
-  const [form, setForm] = useState({
-    full_name: "",
-    institution: "",
-    academic_level: "",
-  });
+  const [form, setForm] = useState({ full_name: "", institution: "", academic_level: "" });
   useEffect(() => {
     if (profile) {
       setForm({
@@ -194,18 +193,11 @@ const UserDashboard = () => {
       if (!user) throw new Error("Not signed in");
       const { error } = await supabase
         .from("profiles")
-        .update({
-          full_name: form.full_name,
-          institution: form.institution,
-          academic_level: form.academic_level,
-        })
+        .update({ full_name: form.full_name, institution: form.institution, academic_level: form.academic_level })
         .eq("user_id", user.id);
       if (error) throw error;
     },
-    onSuccess: async () => {
-      await refreshProfile();
-      toast.success("Profile updated");
-    },
+    onSuccess: async () => { await refreshProfile(); toast.success("Profile updated"); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -221,155 +213,184 @@ const UserDashboard = () => {
     toast.success("Removed from saved");
   };
 
+  const navItems = [
+    { to: "/dashboard", tab: "activity", icon: LayoutDashboard, label: "Dashboard" },
+    { to: "/dashboard/downloads", tab: "downloads", icon: Download, label: "My Downloads" },
+    { to: "/dashboard/saved", tab: "saved", icon: Bookmark, label: "Saved Resources" },
+    { to: "/dashboard/convention", tab: "convention", icon: Award, label: "Convention", badge: confirmedConvReg },
+    { to: "/dashboard/settings", tab: "settings", icon: Settings, label: "Settings" },
+  ];
+
   return (
     <Layout>
-      <section className="section-padding bg-background">
-        <div className="content-container">
-          <div className="grid lg:grid-cols-12 gap-8">
-            {/* Sidebar */}
+      <div className="min-h-screen bg-muted/30">
+        {/* Top header bar */}
+        <div className="bg-primary text-primary-foreground">
+          <div className="content-container py-4 flex items-center justify-between">
+            <div>
+              <p className="text-primary-foreground/60 text-xs uppercase tracking-widest font-medium mb-0.5">Member Portal</p>
+              <h1 className="font-serif text-xl font-bold">Welcome back, {firstName}</h1>
+            </div>
+            <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 hidden sm:flex">
+              <Link to="/library">Explore Library</Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="content-container py-8">
+          <div className="grid lg:grid-cols-12 gap-6">
+
+            {/* ── Sidebar ─────────────────────────────────────────────────── */}
             <motion.aside
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
               className="lg:col-span-3"
             >
-              <div className="bg-card rounded-2xl border border-border p-6 sticky top-24 shadow-sm">
-                {/* User Info */}
-                <div className="text-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4 overflow-hidden">
+              <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm sticky top-24">
+                {/* Profile header */}
+                <div className="bg-gradient-to-br from-primary to-primary/80 p-5 text-center">
+                  <div className="w-16 h-16 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center mx-auto mb-3 overflow-hidden">
                     {profile?.avatar_url ? (
                       <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
                     ) : (
-                      <User className="w-10 h-10 text-accent" />
+                      <User className="w-8 h-8 text-white/80" />
                     )}
                   </div>
-                  <h3 className="font-semibold text-foreground">{profile?.full_name || "Member"}</h3>
-                  <p className="text-sm text-muted-foreground">{profile?.institution || "—"}</p>
+                  <h3 className="font-semibold text-white text-sm leading-tight">{profile?.full_name || "Member"}</h3>
+                  <p className="text-white/60 text-xs mt-0.5 truncate px-2">{profile?.email || ""}</p>
                   {profile?.academic_level && (
-                    <Badge variant="secondary" className="mt-2">{profile.academic_level}</Badge>
+                    <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 text-[11px]">
+                      {profile.academic_level}
+                    </span>
                   )}
                 </div>
 
-                {/* Quick Stats */}
-                <div className="grid grid-cols-3 gap-2 mb-6">
-                  <div className="text-center p-3 rounded-lg bg-muted">
-                    <Download className="w-4 h-4 mx-auto mb-1 text-accent" />
-                    <div className="font-semibold text-sm">{downloadsCount}</div>
-                    <div className="text-xs text-muted-foreground">Downloads</div>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-muted">
-                    <Bookmark className="w-4 h-4 mx-auto mb-1 text-accent" />
-                    <div className="font-semibold text-sm">{savedCount}</div>
-                    <div className="text-xs text-muted-foreground">Saved</div>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-muted">
-                    <Eye className="w-4 h-4 mx-auto mb-1 text-accent" />
-                    <div className="font-semibold text-sm">{viewedCount}</div>
-                    <div className="text-xs text-muted-foreground">Viewed</div>
-                  </div>
+                {/* Stats strip */}
+                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+                  {[
+                    { icon: Download, count: downloadsCount, label: "Downloads" },
+                    { icon: Bookmark, count: savedCount, label: "Saved" },
+                    { icon: Eye, count: viewedCount, label: "Viewed" },
+                  ].map(({ icon: Icon, count, label }) => (
+                    <div key={label} className="text-center py-3 px-1">
+                      <div className="font-bold text-foreground text-base">{count}</div>
+                      <div className="text-[10px] text-muted-foreground">{label}</div>
+                    </div>
+                  ))}
                 </div>
 
-                {/* Menu */}
-                <nav className="space-y-1">
-                  <Link to="/dashboard" className={`flex items-center gap-3 px-3 py-2 rounded-lg ${tab === "activity" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"} transition-colors`}>
-                    <BookOpen className="w-4 h-4" />
-                    Dashboard
-                  </Link>
-                  <Link to="/dashboard/downloads" className={`flex items-center gap-3 px-3 py-2 rounded-lg ${tab === "downloads" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"} transition-colors`}>
-                    <Download className="w-4 h-4" />
-                    My Downloads
-                  </Link>
-                  <Link to="/dashboard/saved" className={`flex items-center gap-3 px-3 py-2 rounded-lg ${tab === "saved" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"} transition-colors`}>
-                    <Bookmark className="w-4 h-4" />
-                    Saved Resources
-                  </Link>
-                  <Link to="/dashboard/convention" className={`flex items-center gap-3 px-3 py-2 rounded-lg ${tab === "convention" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"} transition-colors`}>
-                    <Award className="w-4 h-4" />
-                    Convention
-                    {confirmedConvReg && <CheckCircle2 className="w-3 h-3 ml-auto text-accent" />}
-                  </Link>
-                  <Link to="/dashboard/settings" className={`flex items-center gap-3 px-3 py-2 rounded-lg ${tab === "settings" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"} transition-colors`}>
-                    <Settings className="w-4 h-4" />
-                    Settings
-                  </Link>
-                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-destructive hover:bg-destructive/10 transition-colors">
+                {/* Nav */}
+                <nav className="p-2">
+                  {navItems.map(({ to, tab: t, icon: Icon, label, badge }) => (
+                    <Link
+                      key={to}
+                      to={to}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
+                        tab === t
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span className="flex-1">{label}</span>
+                      {badge && <CheckCircle2 className="w-3.5 h-3.5 text-accent flex-shrink-0" />}
+                    </Link>
+                  ))}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-destructive hover:bg-destructive/8 transition-colors mt-1"
+                  >
                     <LogOut className="w-4 h-4" />
-                    Logout
+                    Sign Out
                   </button>
                 </nav>
               </div>
             </motion.aside>
 
-            {/* Main Content */}
+            {/* ── Main Content ─────────────────────────────────────────────── */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.05 }}
               className="lg:col-span-9"
             >
-              {/* Welcome Banner */}
-              <div className="hero-gradient bg-grid-pattern rounded-2xl p-6 md:p-8 text-primary-foreground mb-8 shadow-xl">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">
-                      Welcome back, {firstName}! 👋
-                    </h1>
-                    <p className="opacity-80">
-                      Continue your learning journey with NUASA
-                    </p>
-                  </div>
-                  <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90 w-fit">
-                    <Link to="/library">Explore Library</Link>
-                  </Button>
-                </div>
-              </div>
-
-              <Tabs value={tab} onValueChange={(v) => navigate(v === "activity" ? "/dashboard" : `/dashboard/${v}`)} className="space-y-6">
-                <TabsList className="bg-card border border-border shadow-sm flex-wrap h-auto gap-1 p-1">
-                  <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-                  <TabsTrigger value="downloads">Downloads</TabsTrigger>
-                  <TabsTrigger value="saved">Saved</TabsTrigger>
-                  <TabsTrigger value="convention" className="gap-1.5">
-                    Convention
+              <Tabs value={tab} onValueChange={(v) => navigate(v === "activity" ? "/dashboard" : `/dashboard/${v}`)} className="space-y-5">
+                <TabsList className="bg-card border border-border shadow-sm flex-wrap h-auto gap-1 p-1 rounded-xl">
+                  <TabsTrigger value="activity" className="rounded-lg text-sm gap-1.5">
+                    <LayoutDashboard className="w-3.5 h-3.5" /> Overview
+                  </TabsTrigger>
+                  <TabsTrigger value="downloads" className="rounded-lg text-sm gap-1.5">
+                    <Download className="w-3.5 h-3.5" /> Downloads
+                  </TabsTrigger>
+                  <TabsTrigger value="saved" className="rounded-lg text-sm gap-1.5">
+                    <Bookmark className="w-3.5 h-3.5" /> Saved
+                  </TabsTrigger>
+                  <TabsTrigger value="convention" className="rounded-lg text-sm gap-1.5">
+                    <Award className="w-3.5 h-3.5" /> Convention
                     {confirmedConvReg && <CheckCircle2 className="w-3 h-3 text-accent" />}
                   </TabsTrigger>
-                  <TabsTrigger value="settings">Settings</TabsTrigger>
+                  <TabsTrigger value="settings" className="rounded-lg text-sm gap-1.5">
+                    <Settings className="w-3.5 h-3.5" /> Settings
+                  </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="activity" className="space-y-6">
+                {/* ── Overview ── */}
+                <TabsContent value="activity" className="space-y-5">
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { icon: Eye, label: "Resources Viewed", count: viewedCount, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/30" },
+                      { icon: Download, label: "Downloaded", count: downloadsCount, color: "text-accent", bg: "bg-accent/10" },
+                      { icon: Bookmark, label: "Bookmarked", count: savedCount, color: "text-violet-500", bg: "bg-violet-50 dark:bg-violet-950/30" },
+                      { icon: Award, label: "Convention", count: confirmedConvReg ? "✓" : "—", color: confirmedConvReg ? "text-accent" : "text-muted-foreground", bg: confirmedConvReg ? "bg-accent/10" : "bg-muted" },
+                    ].map(({ icon: Icon, label, count, color, bg }) => (
+                      <div key={label} className="bg-card rounded-xl border border-border p-4 shadow-sm">
+                        <div className={`w-9 h-9 rounded-lg ${bg} flex items-center justify-center mb-3`}>
+                          <Icon className={`w-4.5 h-4.5 ${color}`} />
+                        </div>
+                        <div className={`text-2xl font-bold ${color}`}>{count}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
+                      </div>
+                    ))}
+                  </div>
+
                   {/* Recently Viewed */}
-                  <div className="bg-card rounded-2xl border border-border p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-foreground flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-accent" />
-                        Recently Viewed
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+                        <Clock className="w-4 h-4 text-accent" /> Recently Viewed
                       </h3>
-                      <Link to="/library" className="text-sm text-accent hover:underline">Browse Library</Link>
+                      <Link to="/library" className="text-xs text-accent hover:underline">Browse Library →</Link>
                     </div>
                     {viewsLoading ? (
-                      <p className="text-sm text-muted-foreground py-6 text-center">Loading…</p>
+                      <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
                     ) : recentlyViewed.length === 0 ? (
-                      <div className="py-8 text-center">
-                        <Eye className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                        <p className="text-sm text-muted-foreground mb-4">You haven't previewed any resources yet.</p>
+                      <div className="py-10 text-center px-5">
+                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                          <Eye className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">No resources previewed yet.</p>
                         <Button asChild size="sm" variant="outline"><Link to="/library">Explore Library</Link></Button>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="divide-y divide-border">
                         {recentlyViewed.slice(0, 5).map((item) => {
                           const resource = item.library_resources;
                           if (!resource) return null;
                           return (
-                            <Link key={item.id} to={`/library/${resource.id}`} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">
-                              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                                <FileText className="w-5 h-5 text-accent" />
+                            <Link key={item.id} to={`/library/${resource.id}`} className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/40 transition-colors group">
+                              <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                                <FileText className="w-4 h-4 text-accent" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-foreground truncate">{resource.title}</h4>
+                                <h4 className="text-sm font-medium text-foreground truncate">{resource.title}</h4>
                                 <p className="text-xs text-muted-foreground mt-0.5">
                                   {formatRelative(new Date(item.viewed_at))}
-                                  {resource.file_type && ` • ${resource.file_type.toUpperCase()}`}
+                                  {resource.file_type && ` · ${resource.file_type.toUpperCase()}`}
                                 </p>
                               </div>
-                              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground flex-shrink-0" />
+                              <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-foreground flex-shrink-0" />
                             </Link>
                           );
                         })}
@@ -378,317 +399,302 @@ const UserDashboard = () => {
                   </div>
 
                   {/* Recently Read Articles */}
-                  <div className="bg-card rounded-2xl border border-border p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-foreground flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-accent" />
-                        Recently Read Articles
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+                        <FileText className="w-4 h-4 text-accent" /> Recently Read Articles
                       </h3>
-                      <Link to="/blog" className="text-sm text-accent hover:underline">Browse Blog</Link>
+                      <Link to="/blog" className="text-xs text-accent hover:underline">Browse Blog →</Link>
                     </div>
                     {readsLoading ? (
-                      <p className="text-sm text-muted-foreground py-6 text-center">Loading…</p>
+                      <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
                     ) : recentlyRead.length === 0 ? (
-                      <div className="py-8 text-center">
-                        <FileText className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                        <p className="text-sm text-muted-foreground mb-4">You haven't read any articles yet.</p>
+                      <div className="py-10 text-center px-5">
+                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                          <BookOpen className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">No articles read yet.</p>
                         <Button asChild size="sm" variant="outline"><Link to="/blog">Explore Blog</Link></Button>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="divide-y divide-border">
                         {recentlyRead.map((item) => {
                           const post = item.blog_posts;
                           if (!post) return null;
                           return (
-                            <Link key={item.id} to={`/blog/${post.slug}`} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">
-                              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                                <BookOpen className="w-5 h-5 text-accent" />
+                            <Link key={item.id} to={`/blog/${post.slug}`} className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/40 transition-colors group">
+                              <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                                <BookOpen className="w-4 h-4 text-accent" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-foreground truncate">{post.title}</h4>
+                                <h4 className="text-sm font-medium text-foreground truncate">{post.title}</h4>
                                 <p className="text-xs text-muted-foreground mt-0.5">
                                   {formatRelative(new Date(item.viewed_at))}
-                                  {post.read_time ? ` • ${post.read_time} min read` : ""}
+                                  {post.read_time ? ` · ${post.read_time} min read` : ""}
                                 </p>
                               </div>
-                              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground flex-shrink-0" />
+                              <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-foreground flex-shrink-0" />
                             </Link>
                           );
                         })}
                       </div>
                     )}
                   </div>
+                </TabsContent>
 
-                  {/* Quick Stats Cards */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-card rounded-2xl border border-border p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                          <TrendingUp className="w-5 h-5 text-accent" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground">Your Activity</h4>
-                          <p className="text-sm text-muted-foreground">Lifetime totals</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <div className="text-2xl font-bold text-foreground">{viewedCount}</div>
-                          <div className="text-sm text-muted-foreground">Resources viewed</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-foreground">{downloadsCount}</div>
-                          <div className="text-sm text-muted-foreground">Downloaded</div>
-                        </div>
-                      </div>
+                {/* ── Downloads ── */}
+                <TabsContent value="downloads">
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="px-5 pt-5 pb-3 border-b border-border">
+                      <h3 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                        <Download className="w-4 h-4 text-accent" /> My Downloads
+                        {!downloadsLoading && <Badge variant="secondary" className="ml-1">{downloadsCount}</Badge>}
+                      </h3>
                     </div>
-
-                    <div className="bg-card rounded-2xl border border-border p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
-                          <Bookmark className="w-5 h-5 text-success" />
+                    {downloadsLoading ? (
+                      <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+                    ) : downloads.length === 0 ? (
+                      <div className="py-14 text-center px-5">
+                        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                          <Download className="w-6 h-6 text-muted-foreground" />
                         </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground">Saved Library</h4>
-                          <p className="text-sm text-muted-foreground">Bookmarks across the platform</p>
-                        </div>
+                        <p className="text-sm font-medium text-foreground mb-1">No downloads yet</p>
+                        <p className="text-xs text-muted-foreground mb-4">Resources you download will appear here.</p>
+                        <Button asChild size="sm"><Link to="/library">Browse Library</Link></Button>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{savedCount} item{savedCount === 1 ? "" : "s"}</div>
-                    </div>
+                    ) : (
+                      <div className="divide-y divide-border">
+                        {downloads.map((item) => {
+                          const r = item.library_resources;
+                          if (!r) return null;
+                          return (
+                            <div key={item.id} className="flex items-center gap-4 px-5 py-3.5">
+                              <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                                <Download className="w-4 h-4 text-accent" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-medium text-foreground truncate">{r.title}</h4>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatRelative(new Date(item.downloaded_at))}
+                                  {r.file_type && ` · ${r.file_type.toUpperCase()}`}
+                                </p>
+                              </div>
+                              <Button variant="outline" size="sm" onClick={() => window.open(r.file_url, "_blank")}>
+                                Re-download
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
 
-                <TabsContent value="downloads" className="space-y-4">
-                  {downloadsLoading ? (
-                    <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
-                  ) : downloads.length === 0 ? (
-                    <div className="bg-card rounded-2xl border border-border p-12 text-center">
-                      <Download className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                      <p className="text-sm text-muted-foreground mb-4">You haven't downloaded any resources yet.</p>
-                      <Button asChild size="sm"><Link to="/library">Browse Library</Link></Button>
+                {/* ── Saved ── */}
+                <TabsContent value="saved">
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="px-5 pt-5 pb-3 border-b border-border">
+                      <h3 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                        <Bookmark className="w-4 h-4 text-accent" /> Saved Resources
+                        {!savedLoading && <Badge variant="secondary" className="ml-1">{savedCount}</Badge>}
+                      </h3>
                     </div>
-                  ) : (
-                    <div className="bg-card rounded-2xl border border-border divide-y divide-border">
-                      {downloads.map((item) => {
-                        const r = item.library_resources;
-                        if (!r) return null;
-                        return (
-                          <div key={item.id} className="flex items-center gap-4 p-4">
-                            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                              <Download className="w-5 h-5 text-accent" />
+                    {savedLoading ? (
+                      <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+                    ) : saved.length === 0 ? (
+                      <div className="py-14 text-center px-5">
+                        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                          <Bookmark className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                        <p className="text-sm font-medium text-foreground mb-1">No saved resources</p>
+                        <p className="text-xs text-muted-foreground mb-4">Bookmark resources to find them quickly later.</p>
+                        <Button asChild size="sm"><Link to="/library">Browse Library</Link></Button>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-border">
+                        {saved.map((item) => {
+                          const r = item.library_resources;
+                          if (!r) return null;
+                          const cat = (r as { categories?: { name?: string } }).categories;
+                          return (
+                            <div key={item.id} className="flex items-center gap-4 px-5 py-3.5">
+                              <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                                <Bookmark className="w-4 h-4 text-accent" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-medium text-foreground truncate">{r.title}</h4>
+                                {cat?.name && <Badge variant="secondary" className="mt-1 text-[10px]">{cat.name}</Badge>}
+                              </div>
+                              <div className="flex gap-2 flex-shrink-0">
+                                <Button asChild variant="outline" size="sm"><Link to={`/library/${r.id}`}>View</Link></Button>
+                                <Button variant="ghost" size="sm" onClick={() => removeSaved(item.id)} className="text-muted-foreground hover:text-destructive">Remove</Button>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-foreground truncate">{r.title}</h4>
-                              <p className="text-sm text-muted-foreground">
-                                {formatRelative(new Date(item.downloaded_at))}
-                                {r.file_type && ` • ${r.file_type.toUpperCase()}`}
-                              </p>
-                            </div>
-                            <Button variant="outline" size="sm" onClick={() => window.open(r.file_url, "_blank")}>
-                              Re-download
-                            </Button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </TabsContent>
 
-                <TabsContent value="saved" className="space-y-4">
-                  {savedLoading ? (
-                    <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
-                  ) : saved.length === 0 ? (
-                    <div className="bg-card rounded-2xl border border-border p-12 text-center">
-                      <Bookmark className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                      <p className="text-sm text-muted-foreground mb-4">You haven't saved any resources yet.</p>
-                      <Button asChild size="sm"><Link to="/library">Browse Library</Link></Button>
-                    </div>
-                  ) : (
-                    <div className="bg-card rounded-2xl border border-border divide-y divide-border">
-                      {saved.map((item) => {
-                        const r = item.library_resources;
-                        if (!r) return null;
-                        const cat = (r as { categories?: { name?: string } }).categories;
-                        return (
-                          <div key={item.id} className="flex items-center gap-4 p-4">
-                            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                              <Bookmark className="w-5 h-5 text-accent" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-foreground truncate">{r.title}</h4>
-                              {cat?.name && <Badge variant="secondary" className="mt-1">{cat.name}</Badge>}
-                            </div>
-                            <Button asChild variant="outline" size="sm">
-                              <Link to={`/library/${r.id}`}>View</Link>
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => removeSaved(item.id)}>
-                              Remove
-                            </Button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="convention" className="space-y-6">
+                {/* ── Convention ── */}
+                <TabsContent value="convention" className="space-y-5">
                   {convLoading ? (
-                    <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
+                    <div className="flex justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
                   ) : conventionRegs.length === 0 ? (
-                    <div className="bg-card rounded-2xl border border-border p-12 text-center">
-                      <Award className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                      <p className="text-sm text-muted-foreground mb-2 font-medium">You haven't registered for the convention yet.</p>
-                      <p className="text-xs text-muted-foreground mb-5">Register as a Student, Graduate, or Chapter to secure your spot.</p>
-                      <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                    <div className="bg-card rounded-2xl border border-border p-12 text-center shadow-sm">
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                        <Award className="w-7 h-7 text-muted-foreground" />
+                      </div>
+                      <h3 className="font-semibold text-foreground mb-1">Not registered yet</h3>
+                      <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-5">
+                        Secure your spot at the NUASA National Convention as a Student, Graduate, or Chapter.
+                      </p>
+                      <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
                         <Link to="/convention">Register Now</Link>
                       </Button>
                     </div>
                   ) : (
-                    <div className="space-y-5">
-                      {conventionRegs.map((r: any) => (
-                        <div key={r.id} className="bg-card rounded-3xl border border-border overflow-hidden shadow-sm">
-                          {/* Status banner */}
-                          <div className={`px-6 py-3 flex items-center justify-between ${r.payment_status === "successful" ? "bg-accent/10 border-b border-accent/20" : "bg-muted border-b border-border"}`}>
-                            <div className="flex items-center gap-2">
-                              {r.payment_status === "successful"
-                                ? <CheckCircle2 className="w-4 h-4 text-accent" />
-                                : <AlertCircle className="w-4 h-4 text-muted-foreground" />}
-                              <span className={`text-sm font-semibold capitalize ${r.payment_status === "successful" ? "text-accent" : "text-muted-foreground"}`}>
-                                {r.payment_status === "successful" ? "Registration Confirmed" : `Payment ${r.payment_status}`}
-                              </span>
+                    <div className="space-y-4">
+                      {conventionRegs.map((r: any) => {
+                        const isConfirmed = r.payment_status === "successful";
+                        const categoryLabel = REGISTRATION_LABELS[r.registration_type] || r.registration_type;
+                        return (
+                          <div key={r.id} className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                            {/* Status bar */}
+                            <div className={`px-6 py-3 flex items-center justify-between ${isConfirmed ? "bg-accent/10 border-b border-accent/20" : "bg-muted border-b border-border"}`}>
+                              <div className="flex items-center gap-2">
+                                {isConfirmed
+                                  ? <CheckCircle2 className="w-4 h-4 text-accent" />
+                                  : <AlertCircle className="w-4 h-4 text-muted-foreground" />}
+                                <span className={`text-sm font-semibold ${isConfirmed ? "text-accent" : "text-muted-foreground"}`}>
+                                  {isConfirmed ? "Registration Confirmed" : `Payment ${r.payment_status}`}
+                                </span>
+                              </div>
+                              {/* Category badge — prominent, no amount */}
+                              <Badge className={`${isConfirmed ? "bg-accent text-accent-foreground" : "bg-muted-foreground/20 text-foreground"} px-3 py-1 text-xs font-semibold rounded-full`}>
+                                <GraduationCap className="w-3 h-3 mr-1.5" />
+                                {categoryLabel}
+                              </Badge>
                             </div>
-                            <Badge variant={r.payment_status === "successful" ? "default" : "secondary"} className={r.payment_status === "successful" ? "bg-accent text-accent-foreground" : ""}>
-                              {(r.registration_type || "").replace(/^\w/, (c: string) => c.toUpperCase())}
-                            </Badge>
+
+                            <div className="p-6 space-y-5">
+                              {/* Registration ID */}
+                              <div className="text-center">
+                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 font-medium">Convention Registration ID</p>
+                                <div className="font-mono text-lg font-bold tracking-wider bg-muted rounded-xl py-3 px-4 text-primary border border-border">
+                                  {r.reference_code}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1.5">Present this ID at the convention check-in desk</p>
+                              </div>
+
+                              {/* Details grid */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {[
+                                  { label: "Full Name", value: r.full_name },
+                                  { label: "Email", value: r.email },
+                                  { label: "Phone", value: r.phone },
+                                  r.institution && { label: "Institution", value: r.institution },
+                                ].filter(Boolean).map((field: any) => (
+                                  <div key={field.label} className="bg-muted/40 rounded-xl p-3">
+                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-0.5">{field.label}</p>
+                                    <p className="text-sm font-medium text-foreground truncate">{field.value}</p>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Breakout session — highlighted */}
+                              {r.breakout_session && (
+                                <div className="rounded-xl border border-accent/30 bg-accent/5 px-4 py-3.5 flex items-start gap-3">
+                                  <Sparkles className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-[10px] text-accent font-semibold uppercase tracking-wider mb-0.5">Your Breakout Session</p>
+                                    <p className="text-sm font-semibold text-foreground">{r.breakout_session}</p>
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="text-xs text-muted-foreground border-t border-border pt-3">
+                                Registered on {r.created_at ? new Date(r.created_at).toLocaleDateString("en-NG", { year: "numeric", month: "long", day: "numeric" }) : "—"}
+                              </div>
+
+                              {isConfirmed && (
+                                <Button asChild variant="outline" size="sm" className="w-full">
+                                  <Link to="/convention">View Full Receipt & Print</Link>
+                                </Button>
+                              )}
+                            </div>
                           </div>
-
-                          <div className="p-6 md:p-7 space-y-5">
-                            {/* Registration ID — the most important field */}
-                            <div className="text-center">
-                              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 font-medium">Convention Registration ID</p>
-                              <div className="font-mono text-xl font-bold tracking-wider bg-muted rounded-lg py-3 px-4 text-primary border border-border">
-                                {r.reference_code}
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-1">Present this ID at the convention check-in desk</p>
-                            </div>
-
-                            {/* Key details grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                              <div className="space-y-1">
-                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Full Name</p>
-                                <p className="font-semibold text-foreground">{r.full_name}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Email</p>
-                                <p className="text-foreground truncate">{r.email}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Phone</p>
-                                <p className="text-foreground">{r.phone}</p>
-                              </div>
-                            </div>
-
-                            {/* Breakout session — highlighted */}
-                            {r.breakout_session && (
-                              <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
-                              <p className="text-xs text-accent font-semibold uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                                <Sparkles className="w-3.5 h-3.5" /> Your Breakout Session
-                                </p>
-                                <p className="font-semibold text-foreground text-sm">{r.breakout_session}</p>
-                              </div>
-                            )}
-
-                            {r.institution && (
-                              <div className="text-sm text-muted-foreground">
-                                <span className="font-medium text-foreground">Institution:</span> {r.institution}
-                              </div>
-                            )}
-
-                            <div className="text-xs text-muted-foreground border-t border-border pt-3">
-                              Registered on {r.created_at ? new Date(r.created_at).toLocaleDateString("en-NG", { year: "numeric", month: "long", day: "numeric" }) : "—"}
-                            </div>
-
-                            {r.payment_status === "successful" && (
-                              <Button asChild variant="outline" size="sm" className="w-full gap-2">
-                                <Link to="/convention">View Full Receipt & Print</Link>
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </TabsContent>
 
-                <TabsContent value="settings" className="space-y-6">
-                  <div className="bg-card rounded-2xl border border-border p-6">
-                    <h3 className="font-semibold text-foreground mb-1">Profile Information</h3>
-                    <p className="text-sm text-muted-foreground mb-6">Update the details that show on your dashboard.</p>
-                    <form
-                      onSubmit={(e) => { e.preventDefault(); saveProfile.mutate(); }}
-                      className="space-y-5 max-w-xl"
-                    >
-                      <div className="space-y-2">
-                        <Label htmlFor="full_name">Full Name</Label>
-                        <Input
-                          id="full_name"
-                          value={form.full_name}
-                          onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" value={profile?.email || ""} disabled />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* ── Settings ── */}
+                <TabsContent value="settings" className="space-y-5">
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="px-6 pt-5 pb-3 border-b border-border">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+                        <User className="w-4 h-4 text-accent" /> Profile Information
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">Update the details shown on your dashboard.</p>
+                    </div>
+                    <div className="p-6">
+                      <form onSubmit={(e) => { e.preventDefault(); saveProfile.mutate(); }} className="space-y-5 max-w-xl">
                         <div className="space-y-2">
-                          <Label htmlFor="institution">Institution</Label>
-                          <Input
-                            id="institution"
-                            value={form.institution}
-                            onChange={(e) => setForm({ ...form, institution: e.target.value })}
-                            placeholder="e.g. University of Lagos"
-                          />
+                          <Label htmlFor="full_name">Full Name</Label>
+                          <Input id="full_name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="level">Academic Level</Label>
-                          <Select
-                            value={form.academic_level}
-                            onValueChange={(v) => setForm({ ...form, academic_level: v })}
-                          >
-                            <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="100 Level">100 Level</SelectItem>
-                              <SelectItem value="200 Level">200 Level</SelectItem>
-                              <SelectItem value="300 Level">300 Level</SelectItem>
-                              <SelectItem value="400 Level">400 Level</SelectItem>
-                              <SelectItem value="500 Level">500 Level</SelectItem>
-                              <SelectItem value="Postgraduate">Postgraduate</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <Label htmlFor="email">Email</Label>
+                          <Input id="email" value={profile?.email || ""} disabled className="bg-muted/50" />
+                          <p className="text-xs text-muted-foreground">Email cannot be changed.</p>
                         </div>
-                      </div>
-                      <Button type="submit" disabled={saveProfile.isPending} className="gap-2">
-                        {saveProfile.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                        Save changes
-                      </Button>
-                    </form>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="institution">Institution</Label>
+                            <Input id="institution" value={form.institution} onChange={(e) => setForm({ ...form, institution: e.target.value })} placeholder="e.g. University of Lagos" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="level">Academic Level</Label>
+                            <Select value={form.academic_level} onValueChange={(v) => setForm({ ...form, academic_level: v })}>
+                              <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                              <SelectContent>
+                                {["100 Level","200 Level","300 Level","400 Level","500 Level","Postgraduate"].map((l) => (
+                                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <Button type="submit" disabled={saveProfile.isPending} className="gap-2">
+                          {saveProfile.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                          Save changes
+                        </Button>
+                      </form>
+                    </div>
                   </div>
 
-                  <div className="bg-card rounded-2xl border border-border p-6">
-                    <h3 className="font-semibold text-foreground mb-1">Account</h3>
-                    <p className="text-sm text-muted-foreground mb-4">Sign out of your NUASA account on this device.</p>
-                    <Button variant="destructive" onClick={handleLogout} className="gap-2">
-                      <LogOut className="w-4 h-4" /> Logout
-                    </Button>
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="px-6 pt-5 pb-3 border-b border-border">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+                        <Shield className="w-4 h-4 text-accent" /> Account
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">Manage your account session.</p>
+                    </div>
+                    <div className="p-6">
+                      <Button variant="destructive" onClick={handleLogout} className="gap-2">
+                        <LogOut className="w-4 h-4" /> Sign Out
+                      </Button>
+                    </div>
                   </div>
                 </TabsContent>
               </Tabs>
             </motion.div>
           </div>
         </div>
-      </section>
+      </div>
     </Layout>
   );
 };
