@@ -43,8 +43,11 @@ if [ ! -f "$MYSQL_DATADIR/mysql.ibd" ]; then
   echo "[start-api] Init complete"
 fi
 
-# ── 2. Clean up any stale socket / pid from a previous run ────────────────────
+# ── 2. Clean up stale socket / pid / undo files from a previous run ──────────
 rm -f "$MYSQL_SOCK" "$MYSQL_RUNDIR/mysqld.sock.lock" "$MYSQL_RUNDIR/mysqld.pid"
+# Undo tablespace files must not pre-exist when mysqld starts; remove them so
+# mysqld recreates them cleanly (data lives in datadir, not here).
+rm -f "$MYSQL_UNDODIR"/undo_*
 
 # ── 3. Launch mysqld in the background ────────────────────────────────────────
 echo "[start-api] Starting mysqld..."
