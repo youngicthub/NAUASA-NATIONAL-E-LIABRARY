@@ -19,6 +19,7 @@ import {
   Award,
   CheckCircle2,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -231,7 +232,7 @@ const UserDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               className="lg:col-span-3"
             >
-              <div className="bg-card rounded-2xl border border-border p-6 sticky top-24">
+              <div className="bg-card rounded-2xl border border-border p-6 sticky top-24 shadow-sm">
                 {/* User Info */}
                 <div className="text-center mb-6">
                   <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4 overflow-hidden">
@@ -305,7 +306,7 @@ const UserDashboard = () => {
               className="lg:col-span-9"
             >
               {/* Welcome Banner */}
-              <div className="bg-primary rounded-2xl p-6 md:p-8 text-primary-foreground mb-8">
+              <div className="hero-gradient bg-grid-pattern rounded-2xl p-6 md:p-8 text-primary-foreground mb-8 shadow-xl">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">
@@ -322,7 +323,7 @@ const UserDashboard = () => {
               </div>
 
               <Tabs value={tab} onValueChange={(v) => navigate(v === "activity" ? "/dashboard" : `/dashboard/${v}`)} className="space-y-6">
-                <TabsList className="bg-muted flex-wrap h-auto gap-1">
+                <TabsList className="bg-card border border-border shadow-sm flex-wrap h-auto gap-1 p-1">
                   <TabsTrigger value="activity">Recent Activity</TabsTrigger>
                   <TabsTrigger value="downloads">Downloads</TabsTrigger>
                   <TabsTrigger value="saved">Saved</TabsTrigger>
@@ -543,9 +544,9 @@ const UserDashboard = () => {
                       </Button>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       {conventionRegs.map((r: any) => (
-                        <div key={r.id} className="bg-card rounded-2xl border border-border overflow-hidden">
+                        <div key={r.id} className="bg-card rounded-3xl border border-border overflow-hidden shadow-sm">
                           {/* Status banner */}
                           <div className={`px-6 py-3 flex items-center justify-between ${r.payment_status === "successful" ? "bg-accent/10 border-b border-accent/20" : "bg-muted border-b border-border"}`}>
                             <div className="flex items-center gap-2">
@@ -561,7 +562,7 @@ const UserDashboard = () => {
                             </Badge>
                           </div>
 
-                          <div className="p-6 space-y-4">
+                          <div className="p-6 md:p-7 space-y-5">
                             {/* Registration ID — the most important field */}
                             <div className="text-center">
                               <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 font-medium">Convention Registration ID</p>
@@ -585,17 +586,13 @@ const UserDashboard = () => {
                                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Phone</p>
                                 <p className="text-foreground">{r.phone}</p>
                               </div>
-                              <div className="space-y-1">
-                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Amount Paid</p>
-                                <p className="font-semibold text-foreground">₦{Number(r.amount).toLocaleString()}</p>
-                              </div>
                             </div>
 
                             {/* Breakout session — highlighted */}
                             {r.breakout_session && (
                               <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
-                                <p className="text-xs text-accent font-semibold uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                                  <Award className="w-3.5 h-3.5" /> Your Breakout Session
+                              <p className="text-xs text-accent font-semibold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                <Sparkles className="w-3.5 h-3.5" /> Your Breakout Session
                                 </p>
                                 <p className="font-semibold text-foreground text-sm">{r.breakout_session}</p>
                               </div>

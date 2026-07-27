@@ -244,6 +244,7 @@ export type Database = {
           amount: number
           chapter_name: string | null
           created_at: string
+          breakout_session: string | null
           currency: string
           delegates_count: number | null
           department: string | null
@@ -271,6 +272,7 @@ export type Database = {
           amount: number
           chapter_name?: string | null
           created_at?: string
+          breakout_session?: string | null
           currency?: string
           delegates_count?: number | null
           department?: string | null
@@ -298,6 +300,7 @@ export type Database = {
           amount?: number
           chapter_name?: string | null
           created_at?: string
+          breakout_session?: string | null
           currency?: string
           delegates_count?: number | null
           department?: string | null

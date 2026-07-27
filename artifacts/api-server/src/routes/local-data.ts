@@ -90,6 +90,10 @@ router.get("/data/:table", async (req, res, next) => {
     if (!PUBLIC_TABLES.has(table) && !ensureAuth(req, res)) return;
     const columns = cleanColumns(req.query.select, table).join(", ");
     const { filters, params } = parseFilters(req.query as Record<string, unknown>);
+    if (table === "convention_registrations" && req.authUser?.role !== "admin") {
+      filters.push("`user_id` = ?");
+      params.push(req.authUser!.id);
+    }
     const where = filters.length ? ` WHERE ${filters.join(" AND ")}` : "";
     const order = typeof req.query.order === "string" && /^[a-zA-Z_][a-zA-Z0-9_]*(\.(asc|desc))?$/.test(req.query.order)
       ? ` ORDER BY \`${req.query.order.split(".")[0]}\` ${(req.query.order.endsWith(".desc") ? "DESC" : "ASC")}` : "";
@@ -114,9 +118,30 @@ router.post("/data/:table", async (req, res, next) => {
     // Allow anonymous inserts for specific tables (e.g. site_visits)
     if (!ANON_INSERT_TABLES.has(table) && !ensureAuth(req, res)) return;
     const records = Array.isArray(req.body) ? req.body : [req.body];
+    if (table === "convention_registrations") {
+      if (records.length !== 1) {
+        res.status(400).json({ data: null, error: { message: "Convention registrations must be submitted one at a time." } });
+        return;
+      }
+      const existing = await query<{ id: string }[]>(
+        "SELECT id FROM convention_registrations WHERE user_id = ? LIMIT 1",
+        [req.authUser!.id],
+      );
+      if (existing.length > 0) {
+        res.status(409).json({
+          data: null,
+          error: { message: "You are already registered for the convention." },
+        });
+        return;
+      }
+    }
     const inserted: any[] = [];
     for (const input of records) {
-      const row = { id: crypto.randomUUID(), ...input };
+      const row = {
+        id: crypto.randomUUID(),
+        ...input,
+        ...(table === "convention_registrations" ? { user_id: req.authUser!.id } : {}),
+      };
       // If inserting into users table with a plain password, hash it first
       if (table === "users" && typeof row.password === "string" && row.password.length > 0) {
         row.password_hash = await bcrypt.hash(row.password, 12);
@@ -128,7 +153,18 @@ router.post("/data/:table", async (req, res, next) => {
       const duplicateClause = req.query.upsert === "true" && updateKeys.length
         ? ` ON DUPLICATE KEY UPDATE ${updateKeys.map((key) => `\`${key}\` = VALUES(\`${key}\`)`).join(", ")}`
         : "";
-      await query(`INSERT INTO \`${table}\` (${keys.map((key) => `\`${key}\``).join(",")}) VALUES (${keys.map(() => "?").join(",")})${duplicateClause}`, values);
+      try {
+        await query(`INSERT INTO \`${table}\` (${keys.map((key) => `\`${key}\``).join(",")}) VALUES (${keys.map(() => "?").join(",")})${duplicateClause}`, values);
+      } catch (error: any) {
+        if (table === "convention_registrations" && error?.code === "ER_DUP_ENTRY") {
+          res.status(409).json({
+            data: null,
+            error: { message: "You are already registered for the convention." },
+          });
+          return;
+        }
+        throw error;
+      }
       inserted.push(row);
     }
     res.status(201).json({ data: Array.isArray(req.body) ? inserted : inserted[0], error: null });
